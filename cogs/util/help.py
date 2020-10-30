@@ -38,7 +38,6 @@ class Help(commands.Cog, CommandWrapper):
             help_embed.add_field(name='`reset`', value=lib.get_string('help:reset', user.get_guild()), inline=True)
             help_embed.add_field(name='`roll`', value=lib.get_string('help:roll', user.get_guild()), inline=True)
             help_embed.add_field(name='`sprint`', value=lib.get_string('help:sprint', user.get_guild()), inline=True)
-            help_embed.add_field(name='`todo`', value=lib.get_string('help:todo', user.get_guild()), inline=True)
             help_embed.add_field(name='`wrote`', value=lib.get_string('help:wrote', user.get_guild()), inline=True)
             help_embed.add_field(name='`xp`', value=lib.get_string('help:xp', user.get_guild()), inline=True)
             help_embed.add_field(name='`help`', value=lib.get_string('help:help', user.get_guild()), inline=True)
@@ -218,12 +217,6 @@ class Help(commands.Cog, CommandWrapper):
             sprint_embed.set_footer(text=lib.get_string('help:sprintFooter', user.get_guild()))
 
             return await context.send(embed=sprint_embed)
-
-        elif command == 'todo':
-            todo_embed=discord.Embed(title='Help with `todo` command.', color=3897943)
-            todo_embed.add_field(name='`todo`', value=lib.get_string('help:todoSub', user.get_guild()), inline=True)
-
-            return await context.send(embed=todo_embed)
 
         elif command == 'wrote':
             wrote_embed=discord.Embed(title='Help with `wrote` command', color=3897943)

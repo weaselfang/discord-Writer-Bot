@@ -140,7 +140,6 @@
     "help:reset": "Reset your Writer Bot Stats/Records.",
     "help:roll": "Roll a dice 1 through `n` number.",
     "help:sprint": "Compete against your friends in writing sprints.",
-    "help:todo": "Display the current todo list for the bot.",
     "help:wrote": "Add words to your total written statistic.",
     "help:xp": "Check your your experience point/level.",
     "help:help": "Displays this message!",
@@ -252,8 +251,6 @@
     "help:sprintStatusSub": "Shows your current word count for the current sprint.",
     "help:sprintFooter": " `sprint cancel` can only be run by the person who started the sprint or someone with the MANAGE_MESSAGES permission.",
 
-    "help:todoSub": "Displays the current todo list for the bot.",
-   
     "help:wroteSub": "Adds 500 to your total words written statistic (500 can be changed for your desired words written.)",
     "help:wroteprojectSub": "Adds 500 to your project with the shortname 'sword' (500 can be changed for your desired words written.)",
 
@@ -390,12 +387,6 @@
     "sprint:err:notstarted": "Sprint has not started yet",
     "sprint:err:amount": "Word count must be a valid number",
     "sprint:err:wclessthanstart": "Word count {} is less than the word count you started with ({})!\nIf you joined with a starting word count, make sure to declare your new TOTAL word count, not just the amount you wrote in this sprint.\nIf you really are trying to lower your word count for this sprint, please run: `sprint wc -{}` instead, to decrement your current word count.",
-
-    "todo": "ToDo List",
-    "todo:short": "Short-Term (Next things on the list)",
-    "todo:medium": "Medium-Term (Should happen in the near-ish future)",
-    "todo:long": "Long-Term (Should happen at some point)",
-    "todo:nice": "Nice-to-Have (Feature MIGHT be implemented if there is time)",
 
     "na": "N/A",
     "a": "a",
