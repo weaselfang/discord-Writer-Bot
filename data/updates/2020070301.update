@@ -1,3 +1,0 @@
-[
-    "update projects set shortname = lower(shortname)"
-]
