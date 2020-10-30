@@ -1,6 +1,7 @@
 import discord, lib, time
 from discord.ext import commands
 from structures.generator import NameGenerator
+from structures.project import Project
 from structures.sprint import Sprint
 from structures.task import Task
 from structures.user import User
@@ -55,6 +56,7 @@ class SprintCommand(commands.Cog, CommandWrapper):
             `sprint join` - Joins the current sprint.
             `sprint join 100` - Joins the current sprint, with a starting word count of 100.
             `sprint join 100 sword` - Joins the current sprint, with a starting word count of 100 and sets your sprint to count towards your Project with the shortname "sword" (See: Projects for more info).
+            `sprint join same` - Use the keyword `same` to join the sprint using the same Project and Final Word Count from your most recent sprint.
             `sprint leave` - Leaves the current sprint.
             `sprint project sword` - Sets your sprint to count towards your Project with the shortname "sword" (See: Projects for more info).
             `sprint wc 250` - Declares your final word count at 250.
@@ -358,14 +360,29 @@ class SprintCommand(commands.Cog, CommandWrapper):
         """
         user = User(context.message.author.id, context.guild.id, context)
         sprint = Sprint(user.get_guild())
+        project_id = None
 
         # If there is no active sprint, then just display an error
         if not sprint.exists():
             return await context.send(user.get_mention() + ', ' + lib.get_string('sprint:err:noexists', user.get_guild()))
 
-        # Convert starting_wc to int if we can
-        starting_wc = lib.is_number(starting_wc)
-        if starting_wc is False:
+        # Are we using the `same` keyword?
+        if starting_wc == "same":
+
+            # Okay, check for their most recent sprint record
+            most_recent = user.get_most_recent_sprint(sprint)
+            if most_recent is not None:
+                starting_wc = most_recent['ending_wc']
+                project_id = most_recent['project']
+            else:
+                starting_wc = None
+
+        else:
+            # Convert starting_wc to int if we can
+            starting_wc = lib.is_number(starting_wc)
+
+        # If the starting_wc is still False at this point, just set it to 0
+        if not starting_wc:
             starting_wc = 0
 
         # If the user is already sprinting, then just update their starting wordcount
@@ -387,15 +404,26 @@ class SprintCommand(commands.Cog, CommandWrapper):
             await context.send(user.get_mention() + ', ' + lib.get_string('sprint:join', user.get_guild()).format(starting_wc))
 
         # If a project shortname is supplied, try to set that as what the user is sprinting for.
-        if shortname is not None:
+        if shortname is not None or project_id is not None:
 
-            # Convert to lowercase for searching.
-            shortname = shortname.lower()
+            # Did we supply the project by name?
+            if shortname is not None:
 
-            # Make sure the project exists.
-            project = user.get_project(shortname)
+                # Convert to lowercase for searching.
+                shortname = shortname.lower()
+
+                # Make sure the project exists.
+                project = user.get_project(shortname)
+
+            # Or do we already have the ID from using 'same' and getting from previous sprint?
+            elif project_id is not None:
+                project = Project(project_id)
+
+            # If that did not yield a valid project, send an error message.
             if not project:
-                return await context.send(user.get_mention() + ', ' + lib.get_string('project:err:noexists', user.get_guild()).format(shortname))
+                return await context.send(
+                    user.get_mention() + ', ' + lib.get_string('project:err:noexists', user.get_guild()).format(
+                        shortname))
 
             sprint.set_project(project.get_id(), user.get_id())
             return await context.send(user.get_mention() + ', ' + lib.get_string('sprint:project', user.get_guild()).format(project.get_title()))

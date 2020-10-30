@@ -455,3 +455,10 @@ class User:
         elif self.__bot is not None:
             channel = self.__bot.get_channel(int(self.__channel))
             return await channel.send(message)
+
+    def get_most_recent_sprint(self, current_sprint):
+        """
+        Get the user's most recent sprint record, not including the current one (if they have joined already)
+        :return:
+        """
+        return self.__db.get_sql('SELECT * FROM sprint_users WHERE user = %s AND sprint != %s ORDER BY id DESC', [self.get_id(), current_sprint.get_id()])

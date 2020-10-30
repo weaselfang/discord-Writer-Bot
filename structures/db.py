@@ -130,6 +130,10 @@ class Database:
         self.__build_get(table, where, fields, sort)
         return self.cursor.fetchone()
 
+    def get_sql(self, sql, params):
+        self.cursor.execute(sql, params)
+        return self.cursor.fetchone()
+
     def get_all(self, table, where=None, fields=['*'], sort=None):
         self.__build_get(table, where, fields, sort)
         return self.cursor.fetchall()
