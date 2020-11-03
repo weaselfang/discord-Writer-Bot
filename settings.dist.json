@@ -4,12 +4,8 @@
     "version": "",
     "src": "",
     "patch_notes": "",
-    "help_server": "",
-    "invite_url": "",
-    "avatar": "",
     "db_host": "",
     "db_user": "",
     "db_pass": "",
-    "db_name": "",
-    "env": ""
+    "db_name": ""
 }
