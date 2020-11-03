@@ -7,5 +7,6 @@ CREATE TABLE IF NOT EXISTS sprint_users (
     current_wc INTEGER DEFAULT 0,
     ending_wc INTEGER DEFAULT 0,
     project INTEGER NULL,
-    event INTEGER NULL
+    event INTEGER NULL,
+    sprint_type VARCHAR(255) NULL
 ) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci;

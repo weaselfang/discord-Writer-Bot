@@ -213,12 +213,16 @@ class SprintCommand(commands.Cog, CommandWrapper):
         if not sprint.has_started():
             return await context.send(user.get_mention() + ', ' + lib.get_string('sprint:err:notstarted', user.get_guild()))
 
+        # Get the user's sprint info
+        user_sprint = sprint.get_user_sprint(user.get_id())
+
+        # If they joined without a word count, they can't add one.
+        if user_sprint['sprint_type'] == Sprint.SPRINT_TYPE_NO_WORDCOUNT:
+            return await context.send(user.get_mention() + ', ' + lib.get_string('sprint:err:nonwordcount', user.get_guild()))
+
         # Did they enter something for the amount?
         if amount is None:
             return await context.send(user.get_mention() + ', ' + lib.get_string('sprint:err:amount', user.get_guild()))
-
-        # Get the user's sprint info
-        user_sprint = sprint.get_user_sprint(user.get_id())
 
         # Are they trying to do a calculation instead of declaring a number?
         if amount[0] == '+' or amount[0] == '-':
@@ -351,35 +355,47 @@ class SprintCommand(commands.Cog, CommandWrapper):
             return await context.send( lib.get_string('sprint:leave:cancelled', user.get_guild()) )
 
 
-    async def run_join(self, context, starting_wc=None, shortname=None):
+    async def run_join(self, context, arg1=None, arg2=None):
         """
         Join the sprint, with an optional starting word count and project shortname
-        :param starting_wc:
-        :param shortname: Shortname of Project
+        :param opt1: Argument 1 of the join command
+        :param opt2: Argument 2 of the join command
         :return:
         """
         user = User(context.message.author.id, context.guild.id, context)
         sprint = Sprint(user.get_guild())
         project_id = None
+        starting_wc = None
+        sprint_type = None
 
         # If there is no active sprint, then just display an error
         if not sprint.exists():
             return await context.send(user.get_mention() + ', ' + lib.get_string('sprint:err:noexists', user.get_guild()))
 
         # Are we using the `same` keyword?
-        if starting_wc == "same":
+        if arg1 == "same":
 
             # Okay, check for their most recent sprint record
             most_recent = user.get_most_recent_sprint(sprint)
             if most_recent is not None:
                 starting_wc = most_recent['ending_wc']
                 project_id = most_recent['project']
-            else:
-                starting_wc = None
+                sprint_type = most_recent['sprint_type']
+
+            # Can't use the second argument in this case.
+            arg2 = None
+
+        # Are we doing a no wordcount sprint? E.g. we are sprinting or using the functionality for something else.
+        elif arg1 in ["edit", "non-wc"]:
+
+            sprint_type = Sprint.SPRINT_TYPE_NO_WORDCOUNT
+
+            # Can't use the second argument in this case.
+            arg2 = None
 
         else:
             # Convert starting_wc to int if we can
-            starting_wc = lib.is_number(starting_wc)
+            starting_wc = lib.is_number(arg1)
 
         # If the starting_wc is still False at this point, just set it to 0
         if not starting_wc:
@@ -390,18 +406,30 @@ class SprintCommand(commands.Cog, CommandWrapper):
 
             # Update the sprint_users record. We set their current_wc to the same as starting_wc here, otherwise if they join with, say 50 and their current remains 0
             # then if they run a status, or in the ending calculations, it will say they wrote -50.
-            sprint.update_user(user.get_id(), start=starting_wc, current=starting_wc)
+            sprint.update_user(user.get_id(), start=starting_wc, current=starting_wc, sprint_type=sprint_type)
 
-            # Send message back to channel letting them know their starting word count was updated
-            await context.send(user.get_mention() + ', ' + lib.get_string('sprint:join:update', user.get_guild()).format(starting_wc))
+            # If it's a non-wordcount sprint, send a different message.
+            if sprint_type == Sprint.SPRINT_TYPE_NO_WORDCOUNT:
+                await context.send(
+                    user.get_mention() + ', ' + lib.get_string('sprint:join:update:no_wordcount', user.get_guild()))
+            else:
+                # Send message back to channel letting them know their starting word count was updated
+                await context.send(user.get_mention() + ', ' + lib.get_string('sprint:join:update', user.get_guild()).format(starting_wc))
 
         else:
 
             # Join the sprint
-            sprint.join(user.get_id(), starting_wc)
+            sprint.join(user.get_id(), starting_wc=starting_wc, sprint_type=sprint_type)
 
-            # Send message back to channel letting them know their starting word count was updated
-            await context.send(user.get_mention() + ', ' + lib.get_string('sprint:join', user.get_guild()).format(starting_wc))
+            if sprint_type == Sprint.SPRINT_TYPE_NO_WORDCOUNT:
+                await context.send(
+                    user.get_mention() + ', ' + lib.get_string('sprint:join:update:no_wordcount', user.get_guild()))
+            else:
+                # Send message back to channel letting them know their starting word count was updated
+                await context.send(user.get_mention() + ', ' + lib.get_string('sprint:join', user.get_guild()).format(starting_wc))
+
+        # Currently this is the only usage of argument 2.
+        shortname = arg2
 
         # If a project shortname is supplied, try to set that as what the user is sprinting for.
         if shortname is not None or project_id is not None:

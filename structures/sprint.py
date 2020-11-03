@@ -11,11 +11,14 @@ from structures.user import User
 class Sprint:
 
     DEFAULT_POST_DELAY = 2 # 2 minutes
+
     TASKS = {
         'start': 'start',  # This is the task for starting the sprint, when it is scheduled with a start delay
         'end': 'end', # This is the task for ending the writing phase of the sprint and asking for final word counts
         'complete': 'complete' # This is the task for actually completing the sprint, calculating xp, posting final results, etc...
     }
+
+    SPRINT_TYPE_NO_WORDCOUNT = "no_wordcount"
 
     def __init__(self, guild_id, bot=None):
 
@@ -175,12 +178,18 @@ class Sprint:
         """
         return self.__db.get('sprint_users', {'sprint': self._id, 'user': user_id})
 
-    def get_users(self):
+    def get_users(self, exclude_non_wordcount_sprinters=False):
         """
         Get an array of all the sprint_users records for users taking part in this sprint
+        :bool exclude_non_wordcount_sprinters:
         :return:
         """
-        users = self.__db.get_all('sprint_users', {'sprint': self._id})
+        if exclude_non_wordcount_sprinters:
+            users = self.__db.get_all_sql(
+                'SELECT user FROM sprint_users WHERE sprint = %s AND (sprint_type IS NULL OR sprint_type != %s)', [self._id, Sprint.SPRINT_TYPE_NO_WORDCOUNT]
+            )
+        else:
+            users = self.__db.get_all('sprint_users', {'sprint': self._id})
         return [int(row['user']) for row in users]
 
     def get_notify_users(self):
@@ -221,11 +230,12 @@ class Sprint:
         """
         self.__db.update('sprints', {'end': 0}, {'id': self._id})
 
-    def join(self, user_id, starting_wc=0):
+    def join(self, user_id, starting_wc=0, sprint_type=None):
         """
         Add a user to a sprint with an optional starting word count number
         :param user_id:
         :param starting_wc:
+        :param sprint_type:
         :return: void
         """
 
@@ -237,7 +247,7 @@ class Sprint:
            now = self._start
 
         # Insert the sprint_users record
-        self.__db.insert('sprint_users', {'sprint': self._id, 'user': user_id, 'starting_wc': starting_wc, 'current_wc': starting_wc, 'ending_wc': 0, 'timejoined': now})
+        self.__db.insert('sprint_users', {'sprint': self._id, 'user': user_id, 'starting_wc': starting_wc, 'current_wc': starting_wc, 'ending_wc': 0, 'timejoined': now, 'sprint_type': sprint_type})
 
     def set_project(self, project_id, user_id):
         """
@@ -313,7 +323,7 @@ class Sprint:
         # Print the message to the channel
         return await context.send(message)
 
-    def update_user(self, user_id, start=None, current=None, ending=None):
+    def update_user(self, user_id, start=None, current=None, ending=None, sprint_type=None):
 
         update = {}
 
@@ -325,6 +335,8 @@ class Sprint:
 
         if ending is not None:
             update['ending_wc'] = ending
+
+        update['sprint_type'] = sprint_type
 
         # If the sprint hasn't started yet, set the user's start time to the sprint start time, so calculations will work correctly.
         if not self.has_started():
@@ -360,65 +372,85 @@ class Sprint:
             user = User(user_id, self._guild, context=context, bot=bot, channel=self.get_channel())
             user_sprint = self.get_user_sprint(user_id)
 
-            # If they didn't submit an ending word count, use their current one
-            if user_sprint['ending_wc'] == 0:
-                user_sprint['ending_wc'] = user_sprint['current_wc']
+            # If it's a non-word count sprint, we don't need to do anything with word counts.
+            if user_sprint['sprint_type'] == Sprint.SPRINT_TYPE_NO_WORDCOUNT:
 
-            # Now we only process their result if they have declared something and it's different to their starting word count
-            user_sprint['starting_wc'] = int(user_sprint['starting_wc'])
-            user_sprint['current_wc'] = int(user_sprint['current_wc'])
-            user_sprint['ending_wc'] = int(user_sprint['ending_wc'])
-            user_sprint['timejoined'] = int(user_sprint['timejoined'])
-
-            if user_sprint['ending_wc'] > 0 and user_sprint['ending_wc'] != user_sprint['starting_wc']:
-
-                wordcount = user_sprint['ending_wc'] - user_sprint['starting_wc']
-                time_sprinted = self._end_reference - user_sprint['timejoined']
-
-                # If for some reason the timejoined or sprint.end_reference are 0, then use the defined sprint length instead
-                if user_sprint['timejoined'] <= 0 or self._end_reference == 0:
-                    time_sprinted = self._length
-
-                # Calculate the WPM from their time sprinted
-                wpm = Sprint.calculate_wpm(wordcount, time_sprinted)
-
-                # See if it's a new record for the user
-                user_record = user.get_record('wpm')
-                wpm_record = True if user_record is None or wpm > int(user_record) else False
-
-                # If it is a record, update their record in the database
-                if wpm_record:
-                    user.update_record('wpm', wpm)
-
-                # Give them XP for finishing the sprint
+                # Just give them the completed sprint stat and XP.
                 await user.add_xp(Experience.XP_COMPLETE_SPRINT)
-
-                # Increment their stats
                 user.add_stat('sprints_completed', 1)
-                user.add_stat('sprints_words_written', wordcount)
-                user.add_stat('total_words_written', wordcount)
-
-                # Increment their words towards their goal
-                await user.add_to_goals(wordcount)
-
-                # If they were writing in a Project, update its word count.
-                if user_sprint['project'] is not None:
-                    project = Project(user_sprint['project'])
-                    project.add_words(wordcount)
-
-                # is there an event running on this server?
-                event = Event.get_by_guild(self._guild)
-                if event and event.is_running():
-                    event.add_words(user.get_id(), wordcount)
 
                 # Push user to results
                 results.append({
                     'user': user,
-                    'wordcount': wordcount,
-                    'wpm': wpm,
-                    'wpm_record': wpm_record,
-                    'xp': Experience.XP_COMPLETE_SPRINT
+                    'wordcount': 0,
+                    'xp': Experience.XP_COMPLETE_SPRINT,
+                    'type': user_sprint['sprint_type']
                 })
+
+            else:
+
+                # If they didn't submit an ending word count, use their current one
+                if user_sprint['ending_wc'] == 0:
+                    user_sprint['ending_wc'] = user_sprint['current_wc']
+
+                # Now we only process their result if they have declared something and it's different to their starting word count
+                user_sprint['starting_wc'] = int(user_sprint['starting_wc'])
+                user_sprint['current_wc'] = int(user_sprint['current_wc'])
+                user_sprint['ending_wc'] = int(user_sprint['ending_wc'])
+                user_sprint['timejoined'] = int(user_sprint['timejoined'])
+
+                if user_sprint['ending_wc'] > 0 and user_sprint['ending_wc'] != user_sprint['starting_wc']:
+
+                    wordcount = user_sprint['ending_wc'] - user_sprint['starting_wc']
+                    time_sprinted = self._end_reference - user_sprint['timejoined']
+
+                    # If for some reason the timejoined or sprint.end_reference are 0, then use the defined sprint length instead
+                    if user_sprint['timejoined'] <= 0 or self._end_reference == 0:
+                        time_sprinted = self._length
+
+                    # Calculate the WPM from their time sprinted
+                    wpm = Sprint.calculate_wpm(wordcount, time_sprinted)
+
+                    # See if it's a new record for the user
+                    user_record = user.get_record('wpm')
+                    wpm_record = True if user_record is None or wpm > int(user_record) else False
+
+                    # If it is a record, update their record in the database
+                    if wpm_record:
+                        user.update_record('wpm', wpm)
+
+                    # Give them XP for finishing the sprint
+                    await user.add_xp(Experience.XP_COMPLETE_SPRINT)
+
+                    # Increment their stats
+                    user.add_stat('sprints_completed', 1)
+                    user.add_stat('sprints_words_written', wordcount)
+                    user.add_stat('total_words_written', wordcount)
+
+                    # Increment their words towards their goal
+                    await user.add_to_goals(wordcount)
+
+                    # If they were writing in a Project, update its word count.
+                    if user_sprint['project'] is not None:
+                        project = Project(user_sprint['project'])
+                        project.add_words(wordcount)
+
+                    # is there an event running on this server?
+                    event = Event.get_by_guild(self._guild)
+                    if event and event.is_running():
+                        event.add_words(user.get_id(), wordcount)
+
+                    # Push user to results
+                    results.append({
+                        'user': user,
+                        'wordcount': wordcount,
+                        'wpm': wpm,
+                        'wpm_record': wpm_record,
+                        'xp': Experience.XP_COMPLETE_SPRINT,
+                        'type': user_sprint['sprint_type']
+                    })
+
+
 
         # Sort the results
         results = sorted(results, key=itemgetter('wordcount'), reverse=True)
@@ -448,14 +480,17 @@ class Sprint:
             message = lib.get_string('sprint:results:header', self._guild)
             for result in results:
 
-                message = message + lib.get_string('sprint:results:row', self._guild).format(position, result['user'].get_mention(), result['wordcount'], result['wpm'], result['xp'])
+                if result['type'] == Sprint.SPRINT_TYPE_NO_WORDCOUNT:
+                    message = message + lib.get_string('sprint:results:row:nowc', self._guild).format(result['user'].get_mention(), result['xp'])
+                else:
 
-                # If it's a new PB, append that string as well
-                if result['wpm_record'] is True:
-                    message = message + lib.get_string('sprint:results:pb', self._guild)
+                    message = message + lib.get_string('sprint:results:row', self._guild).format(position, result['user'].get_mention(), result['wordcount'], result['wpm'], result['xp'])
+
+                    # If it's a new PB, append that string as well
+                    if result['wpm_record'] is True:
+                        message = message + lib.get_string('sprint:results:pb', self._guild)
 
                 message = message + '\n'
-
                 position += 1
 
         else:
@@ -477,7 +512,7 @@ class Sprint:
             bot = self.bot
 
         # Get the sprinting users to notify
-        notify = self.get_notifications(self.get_users())
+        notify = self.get_notifications(self.get_users(exclude_non_wordcount_sprinters=True))
 
         # Check for a guild setting for the delay time, otherwise use the default
         guild = Guild.get_from_bot(bot, self._guild)

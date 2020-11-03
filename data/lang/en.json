@@ -362,6 +362,7 @@
     "sprint:leave": "You have abandoned the sprint",
     "sprint:leave:cancelled": "**Sprint has been cancelled**\nEverybody left and I'm not doing this alone.",
     "sprint:join:update": "Your starting word count has been set to {}.",
+    "sprint:join:update:no_wordcount": "You are now sprinting without a word count. You will not be included in the final tallies.",
     "sprint:join": "You have joined the sprint with {} words.",
     "sprint:pb": "Your personal best is **{}** wpm.",
     "sprint:pb:none": "You do not yet have a wpm personal best. Get sprinting, if you want one!",
@@ -371,6 +372,7 @@
     "sprint:nowordcounts": "No-one submitted their word counts... I guess I'll just cancel the sprint... :frowning:",
     "sprint:results:header": ":trophy: **Sprint Results** :trophy:\nCongratulations to everyone.\n",
     "sprint:results:row": "`{}`. {} - **{} words** ({} wpm)          +{} xp",
+    "sprint:results:row:nowc": "{}         +{} xp",
     "sprint:results:pb": "          :champagne: **NEW PB**",
     "sprint:end": "**Time is up**\nPens down. Use `sprint wc <amount>` to submit your final word counts, you have {} minute(s).\n",
     "sprint:project": "You are now sprinting in your project **{}**.",
@@ -387,6 +389,7 @@
     "sprint:err:notstarted": "Sprint has not started yet",
     "sprint:err:amount": "Word count must be a valid number",
     "sprint:err:wclessthanstart": "Word count {} is less than the word count you started with ({})!\nIf you joined with a starting word count, make sure to declare your new TOTAL word count, not just the amount you wrote in this sprint.\nIf you really are trying to lower your word count for this sprint, please run: `sprint wc -{}` instead, to decrement your current word count.",
+    "sprint:err:nonwordcount": "You joined this sprint as a non-word count sprinter, so you cannot declare a word count. If you wish to change that, join the sprint again with a starting word count.",
 
     "na": "N/A",
     "a": "a",
