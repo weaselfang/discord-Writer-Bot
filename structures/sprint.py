@@ -167,7 +167,7 @@ class Sprint:
         Check if everyone sprinting has declared their final word counts
         :return: bool
         """
-        results = self.__db.get_all_sql('SELECT * FROM sprint_users WHERE sprint = %s AND ending_wc = 0', [self._id])
+        results = self.__db.get_all_sql('SELECT * FROM sprint_users WHERE sprint = %s AND ending_wc = 0 AND (sprint_type IS NULL OR sprint_type != %s)', [self._id, Sprint.SPRINT_TYPE_NO_WORDCOUNT])
         return len(results) == 0
 
     def get_user_sprint(self, user_id):
@@ -178,18 +178,13 @@ class Sprint:
         """
         return self.__db.get('sprint_users', {'sprint': self._id, 'user': user_id})
 
-    def get_users(self, exclude_non_wordcount_sprinters=False):
+    def get_users(self):
         """
         Get an array of all the sprint_users records for users taking part in this sprint
         :bool exclude_non_wordcount_sprinters:
         :return:
         """
-        if exclude_non_wordcount_sprinters:
-            users = self.__db.get_all_sql(
-                'SELECT user FROM sprint_users WHERE sprint = %s AND (sprint_type IS NULL OR sprint_type != %s)', [self._id, Sprint.SPRINT_TYPE_NO_WORDCOUNT]
-            )
-        else:
-            users = self.__db.get_all('sprint_users', {'sprint': self._id})
+        users = self.__db.get_all('sprint_users', {'sprint': self._id})
         return [int(row['user']) for row in users]
 
     def get_notify_users(self):
@@ -512,7 +507,7 @@ class Sprint:
             bot = self.bot
 
         # Get the sprinting users to notify
-        notify = self.get_notifications(self.get_users(exclude_non_wordcount_sprinters=True))
+        notify = self.get_notifications(self.get_users())
 
         # Check for a guild setting for the delay time, otherwise use the default
         guild = Guild.get_from_bot(bot, self._guild)
