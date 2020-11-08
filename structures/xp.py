@@ -15,7 +15,10 @@ class Experience:
     XP_COMPLETE_SPRINT = 25
     XP_WIN_SPRINT = 100
     XP_COMPLETE_GOAL = {
-        "daily": 100
+        "daily": 100,
+        "weekly": 250,
+        "monthly": 500,
+        "yearly": 2500
     }
 
     XP_CALC_KEY = 50

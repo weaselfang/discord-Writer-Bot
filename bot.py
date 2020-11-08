@@ -95,10 +95,10 @@ class WriterBot(AutoShardedBot):
 
                     try:
                         self.load_extension(f"cogs.{dir}.{cog}")
-                        print(f'[EXT][{dir}.{cog}] loaded')
+                        lib.out(f'[EXT][{dir}.{cog}] loaded')
                     except Exception as e:
-                        print(f'[EXT][{dir}.{cog}] failed to load')
-                        print(e)
+                        lib.out(f'[EXT][{dir}.{cog}] failed to load')
+                        lib.out(e)
 
     def update(self):
         """
@@ -133,28 +133,34 @@ class WriterBot(AutoShardedBot):
 
                     # Loop through the array of SQL statements to run.
                     for sql in update:
-                        print('[UPDATE] Running query `' + sql + '`')
+                        lib.out('[UPDATE] Running query `' + sql + '`')
                         db.execute(sql, [])
 
         # Once it's done, update the version in the database.
-        db.update('bot_settings', {'value': version}, {'setting': 'version'})
+        setting = db.get('bot_settings', {'setting': 'version'})
+        if setting:
+            db.update('bot_settings', {'value': version}, {'setting': 'version'})
+        else:
+            db.insert('bot_settings', {'setting': 'version', 'value': version})
 
     def setup(self):
         """
         Run the bot setup
         :return:
         """
+        lib.out('[BOT] Beginning boot process')
+
         # Install the database.
         db = Database.instance()
         db.install()
-        print('[DB] Database tables installed')
+        lib.out('[DB] Database tables installed')
 
         # Run any database updates.
         self.update()
 
         # Setup the recurring tasks which need running.
         self.setup_recurring_tasks()
-        print('[TASK] Recurring tasks inserted')
+        lib.out('[TASK] Recurring tasks inserted')
 
         # Restart all tasks which are marked as processing, in case the bot dropped out during the process.
         db.update('tasks', {'processing': 0})
@@ -208,7 +214,7 @@ class WriterBot(AutoShardedBot):
         try:
             await Task.execute_all(self)
         except Exception as e:
-            print('Exception: ' + str(e))
+            lib.out('Exception: ' + str(e))
 
     @tasks.loop(hours=CLEANUP_TASK_LOOP)
     async def cleanup_tasks(self):

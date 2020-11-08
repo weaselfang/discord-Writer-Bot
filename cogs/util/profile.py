@@ -29,7 +29,9 @@ class Profile(commands.Cog, CommandWrapper):
             'sprints_won': user.get_stat('sprints_won'),
             'challenges_completed': user.get_stat('challenges_completed'),
             'daily_goals_completed': user.get_stat('daily_goals_completed'),
-            'goal_progress': str(goals['daily']['percent']) + '%'
+            'weekly_goals_completed': user.get_stat('weekly_goals_completed'),
+            'monthly_goals_completed': user.get_stat('monthly_goals_completed'),
+            'yearly_goals_completed': user.get_stat('yearly_goals_completed'),
         }
 
         embed = discord.Embed(title=user.get_name(), color=3066993)
@@ -42,7 +44,10 @@ class Profile(commands.Cog, CommandWrapper):
         embed.add_field(name=lib.get_string('profile:sprintswon', user.get_guild()), value=profile['sprints_won'], inline=True)
         embed.add_field(name=lib.get_string('profile:challengescompleted', user.get_guild()), value=profile['challenges_completed'], inline=True)
         embed.add_field(name=lib.get_string('profile:dailygoalscompleted', user.get_guild()), value=profile['daily_goals_completed'], inline=True)
-        embed.add_field(name=lib.get_string('profile:goalprogress', user.get_guild()), value=profile['goal_progress'], inline=True)
+        embed.add_field(name=lib.get_string('profile:weeklygoalscompleted', user.get_guild()), value=profile['weekly_goals_completed'], inline=True)
+        embed.add_field(name=lib.get_string('profile:monthlygoalscompleted', user.get_guild()), value=profile['monthly_goals_completed'], inline=True)
+        embed.add_field(name=lib.get_string('profile:yearlygoalscompleted', user.get_guild()), value=profile['yearly_goals_completed'], inline=True)
+
 
         # Send the message
         await context.send(embed=embed)

@@ -128,9 +128,10 @@ class Help(commands.Cog, CommandWrapper):
         elif command == 'goal':
             goal_embed=discord.Embed(title='Help with `goal` command.', color=3897943)
             goal_embed.add_field(name='`goal`', value=lib.get_string('help:goalSub', user.get_guild()), inline=True)
-            goal_embed.add_field(name='`goal set 500`', value=lib.get_string('help:goalSetSub', user.get_guild()), inline=True)
-            goal_embed.add_field(name='`goal cancel`', value=lib.get_string('help:goalCancelSub', user.get_guild()), inline=True)
-            goal_embed.add_field(name='`goal time`', value=lib.get_string('help:goalTimeSub', user.get_guild()), inline=True)
+            goal_embed.add_field(name='`goal check daily`', value=lib.get_string('help:goalCheckSub', user.get_guild()), inline=True)
+            goal_embed.add_field(name='`goal set weekly 500`', value=lib.get_string('help:goalSetSub', user.get_guild()), inline=True)
+            goal_embed.add_field(name='`goal cancel monthly`', value=lib.get_string('help:goalCancelSub', user.get_guild()), inline=True)
+            goal_embed.add_field(name='`goal time yearly`', value=lib.get_string('help:goalTimeSub', user.get_guild()), inline=True)
 
             return await context.send(embed=goal_embed)
 

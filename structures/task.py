@@ -105,7 +105,7 @@ class Task:
 
         else:
             # Invalid task object. May as well just delete this task.
-            print('Invalid task object: ' + self.object)
+            lib.out('Invalid task object: ' + self.object)
             result = True
 
         # If we finished the task, and it's not a recurring one, delete it.

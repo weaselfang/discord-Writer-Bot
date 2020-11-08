@@ -3,6 +3,7 @@ from collections import namedtuple
 from pprint import pprint
 from os import path
 from datetime import datetime, timezone, timedelta, time
+from dateutil import relativedelta
 
 def get(file,as_object=True):
     """
@@ -104,24 +105,36 @@ def is_number(value):
     except (ValueError, TypeError):
         return False
 
-def get_midnight_utc(timezone):
+def get_midnight_utc(timezone, type):
     """
-    Given a timezone name, get the UTC timestamp for midnight tomorrow.
+    Given a timezone name, get the UTC timestamp for midnight at the next (day, week, month, year).
     Used in things like goal resets, so that they reset at midnight in the user's timezone.
 
     :param timezone:
+    :param type: daily, weekly, monthly or yearly
     :return:
     """
 
     tz = pytz.timezone(timezone)
-
     today = datetime.now(tz)
-    tomorrow = today + timedelta(days=1)
 
-    midnight = tz.localize( datetime.combine(tomorrow, time(0, 0, 0, 0)), is_dst=None )
-    midnight_utc = midnight.astimezone(pytz.utc)
+    if type == "daily":
+        # Today plus 1 day, at midnight.
+        relative = relativedelta.relativedelta(days=1, hour=0, minute=0, second=0)
+    elif type == "weekly":
+        # Next Monday, at midnight.
+        relative = relativedelta.relativedelta(days=-today.weekday(), weeks=1, hour=0, minute=0, second=0)
+    elif type == "monthly":
+        # First of next month, at midnight.
+        relative = relativedelta.relativedelta(months=1, day=1, hour=0, minute=0, second=0)
+    elif type == "yearly":
+        # First of next year, at midnight.
+        relative = relativedelta.relativedelta(years=1, month=1, day=1, hour=0, minute=0, second=0)
 
-    return int(midnight_utc.timestamp())
+    next = today + relative
+    next_utc = next.astimezone(pytz.utc)
+
+    return int(next_utc.timestamp())
 
 def secs_to_mins(seconds):
     """
@@ -182,6 +195,15 @@ def find(list, key, value):
             index = i
 
     return list[index] if index is not False else False
+
+def out(txt):
+    """
+    Print a message to the log
+    :param txt:
+    :return:
+    """
+    time = datetime.now().strftime("%Y-%m-%d, %H:%M:%S")
+    print('['+str(time)+']' + str(txt))
 
 def debug(txt):
     """

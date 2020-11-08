@@ -73,8 +73,8 @@ class Wrote(commands.Cog, CommandWrapper):
         # Increment their words written statistic
         user.add_stat('total_words_written', amount)
 
-        # Update their words towards their daily goal
-        await user.add_to_goal('daily', amount)
+        # Update their words towards their goals
+        await user.add_to_goals(amount)
 
         # Output message
         if message is None:

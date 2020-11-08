@@ -318,9 +318,16 @@ class User:
         else:
             return self.__db.insert('user_records', {'user': self._id, 'record': name, 'value': value})
 
-    def calculate_user_reset_time(self):
+    def calculate_user_reset_time(self, type):
+        """
+        Calculate the next reset time for this type of user goal, based on their timezone.
+        @param type:
+        @return:
+        """
+
         timezone = self.get_setting('timezone') or 'UTC'
-        return lib.get_midnight_utc(timezone)
+        return lib.get_midnight_utc(timezone, type)
+
 
     def get_goal(self, type):
         """
@@ -369,7 +376,7 @@ class User:
     def set_goal(self, type, value):
 
         user_goal = self.get_goal(type)
-        next_reset = self.calculate_user_reset_time()
+        next_reset = self.calculate_user_reset_time(type)
 
         if user_goal:
             return self.__db.update('user_goals', {'goal': value, 'reset': next_reset}, {'id': user_goal['id']})
@@ -385,7 +392,7 @@ class User:
         :param amount:
         :return:
         """
-        for goal in ['daily']:
+        for goal in ['daily', 'weekly', 'monthly', 'yearly']:
             await self.add_to_goal(goal, amount)
 
     async def add_to_goal(self, type, amount):
