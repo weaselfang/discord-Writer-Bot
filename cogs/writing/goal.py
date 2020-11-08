@@ -75,7 +75,7 @@ class Goal(commands.Cog, CommandWrapper):
                 left = lib.secs_to_days(goal['reset'] - now)
                 text = lib.get_string('goal:yourgoal', user.get_guild()).format(type, goal['goal']) +  "\n"
                 text += lib.get_string('goal:status', user.get_guild()).format(progress['percent'], type, progress['current'], progress['goal']) + "\n"
-                text += lib.get_string('goal:timeleft', user.get_guild()).format(left, 'daily')
+                text += lib.get_string('goal:timeleft', user.get_guild()).format(left, type)
             else:
                 text = None
 
