@@ -9,9 +9,13 @@
 [![Contributors][contributors-shield]][contributors-url]
 [![Forks][forks-shield]][forks-url]
 [![Stargazers][stars-shield]][stars-url]
-[![Issues][issues-shield]][issues-url]
-[![MIT License][license-shield]][license-url]
 
+[![Issues][issues-shield]][issues-url]
+[![ClosedIssues][closed-issues-shield]][closed-issues-url]
+[![PR][open-shield]][open-url]
+[![ClosedPR][closed-shield]][closed-url]
+
+[![Discord][discord-shield]][discord-url]
 
 
 <!-- PROJECT LOGO -->
@@ -161,9 +165,15 @@ Distributed under the GNU General Public (V3) License. See `LICENSE.txt` for mor
 [contributors-url]: https://github.com/cwarwicker/discord-Writer-Bot/graphs/contributors
 [forks-shield]: https://img.shields.io/github/forks/cwarwicker/discord-Writer-Bot.svg?style=flat-square
 [forks-url]: https://github.com/cwarwicker/discord-Writer-Bot/network/members
-[stars-shield]: https://img.shields.io/github/stars/cwarwicker/discord-Writer-Bot.svg?style=flat-square
+[stars-shield]: https://img.shields.io/github/stars/cwarwicker/discord-Writer-Bot.svg?style=flat-square&color=brightgreen
 [stars-url]: https://github.com/cwarwicker/discord-Writer-Bot/stargazers
-[issues-shield]: https://img.shields.io/github/issues/cwarwicker/discord-Writer-Bot.svg?style=flat-square
+[issues-shield]: https://img.shields.io/github/issues/cwarwicker/discord-Writer-Bot.svg?color=orange&style=flat-square&label=open%20issues
 [issues-url]: https://github.com/cwarwicker/discord-Writer-Bot/issues
-[license-shield]: https://img.shields.io/github/license/cwarwicker/discord-Writer-Bot.svg?style=flat-square
-[license-url]: https://github.com/cwarwicker/discord-Writer-Bot/blob/master/LICENSE.txt
+[discord-shield]: https://img.shields.io/discord/503593039541960704?logo=discord
+[discord-url]: https://discord.com/invite/awaC6Vq
+[closed-shield]: https://img.shields.io/github/issues-pr-closed-raw/cwarwicker/discord-Writer-Bot?color=purple&style=flat-square
+[closed-url]: https://github.com/cwarwicker/discord-Writer-Bot/pulls?q=is%3Apr+is%3Aclosed
+[closed-issues-shield]: https://img.shields.io/github/issues-closed-raw/cwarwicker/discord-Writer-Bot?color=purple&style=flat-square
+[closed-issues-url]: https://github.com/cwarwicker/discord-Writer-Bot/issues?q=is%3Aissue+is%3Aclosed
+[open-shield]: https://img.shields.io/github/issues-pr/cwarwicker/discord-Writer-Bot?color=orange&style=flat-square
+[open-url]: https://github.com/cwarwicker/discord-Writer-Bot/pulls
