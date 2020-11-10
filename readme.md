@@ -44,23 +44,18 @@
 ## Table of Contents
 
 * [About the Project](#about-the-project)
-  * [Built With](#built-with)
-* [Getting Started](#getting-started)
-  * [Prerequisites](#prerequisites)
-  * [Installation](#installation)
-* [Usage](#usage)
+* [Bot Usage](#bot-usage)
 * [Roadmap](#roadmap)
+* [Development](#development)
 * [Contributing](#contributing)
 * [License](#license)
-* [Contact](#contact)
-* [Acknowledgements](#acknowledgements)
 
 
 
 <!-- ABOUT THE PROJECT -->
 ## About The Project
 
-Writer Bot began life as a small project for one writing server on discord of which I was a member. We wer using a sprint bot, but I thought it would be quite handy to have more functionality, so decided to make my own bot for the server to use. This original version of the bot was written in node.js, using the discord.js library.
+Writer Bot began life as a small project for one writing server on discord of which I was a member. We were using a sprint bot, but I thought it would be quite handy to have more functionality, so decided to make my own bot for the server to use. This original version of the bot was written in node.js, using the discord.js library.
 
 After releasing it to that server, as an after-thought I decided to add it to one of the discord bot lists, in case anyone else found it useful.
 
