@@ -6,6 +6,7 @@
 *** for contributors-url, forks-url, etc. This is an optional, concise syntax you may use.
 *** https://www.markdownguide.org/basic-syntax/#reference-style-links
 -->
+
 [![Contributors][contributors-shield]][contributors-url]
 [![Forks][forks-shield]][forks-url]
 [![Stargazers][stars-shield]][stars-url]
@@ -17,6 +18,9 @@
 
 [![Discord][discord-shield]][discord-url]
 
+<br />
+
+[![forthebadge](https://forthebadge.com/images/badges/made-with-python.svg)](https://www.python.org)
 
 <!-- PROJECT LOGO -->
 <br />
