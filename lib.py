@@ -18,7 +18,6 @@ def get(file,as_object=True):
         if as_object:
             return json.load(data, object_hook=lambda d: namedtuple('X', d.keys())(*d.values()))
         else:
-            print(data)
             return json.load(data)
 
 def get_lang(guild_id):
