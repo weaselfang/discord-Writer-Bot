@@ -53,6 +53,7 @@
 * [Development](#development)
 * [Contributing](#contributing)
 * [License](#license)
+* [Credits](#credits)
 
 
 
@@ -156,6 +157,18 @@ Contributions are what make the open source community such an amazing place to b
 Distributed under the GNU General Public (V3) License. See `LICENSE.txt` for more information.
 
 
+<!-- Credits -->
+## Credits
+
+Thank you to everyone who gets involved in helping out with Writer Bot, whether that is writing code, translating language strings, answering questions on the support server, or even just using the bot! Without you, Writer Bot would just be some code sitting on a server doing nothing.
+
+**Code Contributors**
+
+https://github.com/cwarwicker/discord-Writer-Bot/graphs/contributors
+
+**Translators**
+
+kdem - French Translations 
 
 
 <!-- MARKDOWN LINKS & IMAGES -->
