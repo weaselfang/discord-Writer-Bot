@@ -286,6 +286,7 @@
     "project:err:alreadycompleted": "This project is already completed. If you need to re-open it, you can run `project restart {}`.",
     "project:err:options": "Invalid command option(s). Please check the correct format for the command you are trying to run.",
     "project:err:amount": "Word count must be a number.",
+    "project:err:length": "Title must be less than 100 characters.",
 
     "event:argument:cmd": "What are you trying to do with an event? `create`, `update`, `delete`, etc...? See `help event` for more info.",
     "event:err:argument:cmd": "Invalid event command",

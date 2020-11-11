@@ -259,6 +259,10 @@ class Project(commands.Cog, CommandWrapper):
         if len(shortname) == 0 or len(title) == 0:
             return await context.send(user.get_mention() + ', ' + lib.get_string('project:err:names', user.get_guild()))
 
+        # Make sure that the title is less than 100 chars
+        if len(title) > 100:
+            return await context.send(user.get_mention() + ', ' + lib.get_string('project:err:length', user.get_guild()))
+
         # Make sure they don't already have a project with this shortname
         project = user.get_project(shortname)
         if project is not None:
