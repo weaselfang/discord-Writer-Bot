@@ -69,17 +69,18 @@ class Goal(commands.Cog, CommandWrapper):
 
         for type in self.types:
 
+            type_string = lib.get_string('goal:'+type, user.get_guild())
             goal = user.get_goal(type)
             if goal is not None:
                 progress = user.get_goal_progress(type)
                 left = lib.secs_to_days(goal['reset'] - now)
-                text = lib.get_string('goal:yourgoal', user.get_guild()).format(type, goal['goal']) +  "\n"
-                text += lib.get_string('goal:status', user.get_guild()).format(progress['percent'], type, progress['current'], progress['goal']) + "\n"
-                text += lib.get_string('goal:timeleft', user.get_guild()).format(left, type)
+                text = lib.get_string('goal:yourgoal', user.get_guild()).format(type_string, goal['goal']) +  "\n"
+                text += lib.get_string('goal:status', user.get_guild()).format(progress['percent'], type_string, progress['current'], progress['goal']) + "\n"
+                text += lib.get_string('goal:timeleft', user.get_guild()).format(left, type_string)
             else:
                 text = None
 
-            embed.add_field(name=lib.get_string('goal:'+type, user.get_guild()), value=text, inline=False)
+            embed.add_field(name=type_string, value=text, inline=False)
 
         # Send the message
         await context.send(embed=embed)
@@ -126,28 +127,20 @@ class Goal(commands.Cog, CommandWrapper):
         user.set_goal(type, amount)
         timezone = user.get_setting('timezone') or 'UTC'
 
-        reset_every = '?'
-        if type == "daily":
-            reset_every = 'day'
-        elif type == "weekly":
-            reset_every = 'week'
-        elif type == "monthly":
-            reset_every = 'month'
-        elif type == "yearly":
-            reset_every = 'year'
-
+        reset_every = lib.get_string('goal:set:'+type, user.get_guild())
         return await context.send(user.get_mention() + ', ' + lib.get_string('goal:set', user.get_guild()).format(type, amount, reset_every, timezone))
 
     async def run_check(self, context, type):
 
         user = User(context.message.author.id, context.guild.id, context)
+        type_string = lib.get_string('goal:' + type, user.get_guild())
 
         user_goal = user.get_goal(type)
         if user_goal:
             progress = user.get_goal_progress(type)
-            return await context.send(user.get_mention() + ', ' + lib.get_string('goal:status', user.get_guild()).format(progress['percent'], type, progress['current'], progress['goal']))
+            return await context.send(user.get_mention() + ', ' + lib.get_string('goal:status', user.get_guild()).format(progress['percent'], type_string, progress['current'], progress['goal']))
         else:
-            return await context.send(user.get_mention() + ', ' + lib.get_string('goal:nogoal', user.get_guild()).format(type, type))
+            return await context.send(user.get_mention() + ', ' + lib.get_string('goal:nogoal', user.get_guild()).format(type_string, type))
 
 
 def setup(bot):

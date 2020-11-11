@@ -128,7 +128,11 @@
     "goal:status": "You are **{}%** of the way to your {} goal. ({}/{})",
     "goal:nogoal": "You do not currently have a {} goal. Maybe you should set one? `goal set {} <wordcount>`",
     "goal:givenup": "has given up on their goal. Boo.",
-    "goal:set": "{} goal set to **{}** words. This will reset every {} at midnight ({}). Now, get writing!",
+    "goal:set": "{} goal set to **{}** words. {} ({}). Now, get writing!",
+    "goal:set:daily": "This will reset every day, at midnight",
+    "goal:set:weekly": "This will reset every Monday morning, at midnight",
+    "goal:set:monthly": "This will reset on the 1st of every month, at midnight",
+    "goal:set:yearly": "This will reset on the 1st of Jan every month, at midnight",
     "goal:met": "{} met their {} goal of {} words!      +{}xp",
     "goal:timeleft": "{} left until {} goal reset.",
     "goal:invalidtype": "Please make sure you specify a valid goal type (`daily`, `weekly`, `monthly` or `yearly`). E.g. `goal set weekly 500`.",
@@ -207,6 +211,7 @@
     "help:generateIdeaSub": "Generates a random story idea.",
     "help:generatePlace20Sub": "Generates 20 place names (Place can be changed to any of the above choices. 20 can be changed to you desired amount.)",
     "help:generateLandSub": "Generates 10 random fantasy land names",
+    "help:generateFooter": "",
 
     "help:goalSub": "Prints a list of all your goals and their statuses.",
     "help:goalCheckSub": "Checks how close you are to your daily goal.",
@@ -262,6 +267,7 @@
     "help:sprintForgetSub": "You will now no longer be notified when someone starts a new sprint on your current server.",
     "help:sprintStatusSub": "Shows your current word count for the current sprint.",
     "help:sprintFooter": " `sprint cancel` can only be run by the person who started the sprint or someone with the MANAGE_MESSAGES permission.",
+    "help:sprintJoinEdit": "Joins the current sprint but as a user who will not submit a word count. For example, if you are editing, rather than writing.",
 
     "help:wroteSub": "Adds 500 to your total words written statistic (500 can be changed for your desired words written.)",
     "help:wroteprojectSub": "Adds 500 to your project with the shortname 'sword' (500 can be changed for your desired words written.)",

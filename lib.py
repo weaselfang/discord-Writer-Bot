@@ -4,6 +4,7 @@ from pprint import pprint
 from os import path
 from datetime import datetime, timezone, timedelta, time
 from dateutil import relativedelta
+from structures.db import Database
 
 def get(file,as_object=True):
     """
@@ -17,6 +18,7 @@ def get(file,as_object=True):
         if as_object:
             return json.load(data, object_hook=lambda d: namedtuple('X', d.keys())(*d.values()))
         else:
+            print(data)
             return json.load(data)
 
 def get_lang(guild_id):
@@ -25,15 +27,20 @@ def get_lang(guild_id):
     @param guild_id: The guild ID
     @return string: The language code
     """
-    # TODO: Look up guild language in DB
-    return 'en'
+    db = Database.instance()
+    result = db.get('guild_settings', {'guild': guild_id, 'setting': 'lang'})
+
+    if result and is_supported_language(result['value']):
+        return result['value']
+    else:
+        return 'en'
 
 def get_supported_languages():
     """
     Get an array of supported language packs the guilds can choose from
     :return:
     """
-    return ['en']
+    return ['en', 'fr']
 
 def is_supported_language(lang):
     """

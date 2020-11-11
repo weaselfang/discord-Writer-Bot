@@ -24,7 +24,7 @@ class Help(commands.Cog, CommandWrapper):
             help_embed = discord.Embed(title="Help with Writer Bot", description="For more help with a command run `help [command]`", color=discord.Color.blurple())
             help_embed.add_field(name='`about`', value=lib.get_string('help:about', user.get_guild()), inline=True)
             help_embed.add_field(name='`ask`', value=lib.get_string('help:ask', user.get_guild()), inline=True)
-            help_embed.add_field(name='`challenge`', value=lib.get_string('help:challenge', user.get_guild), inline=True)
+            help_embed.add_field(name='`challenge`', value=lib.get_string('help:challenge', user.get_guild()), inline=True)
             help_embed.add_field(name='`8ball`', value=lib.get_string('help:8ball', user.get_guild()), inline=True)
             help_embed.add_field(name='`event`', value=lib.get_string('help:event', user.get_guild()), inline=True)
             help_embed.add_field(name='`flip`', value=lib.get_string('help:flip', user.get_guild()), inline=True)
@@ -63,7 +63,7 @@ class Help(commands.Cog, CommandWrapper):
             challenge_embed.add_field(name='`challenge`', value=lib.get_string('help:challengeSub', user.get_guild()), inline=True)
             challenge_embed.add_field(name='`challenge easy`', value=lib.get_string('help:challengeEasySub', user.get_guild()), inline=True)
             challenge_embed.add_field(name='`challenge normal`', value=lib.get_string('help:challengeNormalSub', user.get_guild()), inline=True)
-            challenge_embed.add_field(name='`challenge hard`', value=lib.get_string('help:challengeHardSub', user.get_guild), inline=True)
+            challenge_embed.add_field(name='`challenge hard`', value=lib.get_string('help:challengeHardSub', user.get_guild()), inline=True)
             challenge_embed.add_field(name='`challenge hardcore`', value=lib.get_string('help:challengeHardcoreSub', user.get_guild()), inline=True)
             challenge_embed.add_field(name='`challenge insane`', value=lib.get_string('help:challengeInsaneSub', user.get_guild()), inline=True)
             challenge_embed.add_field(name='`challenge 10wpm`', value=lib.get_string('help:challenge10wpmSub', user.get_guild()), inline=True)
@@ -122,6 +122,7 @@ class Help(commands.Cog, CommandWrapper):
             gen_embed.add_field(name='`generate idea`', value=lib.get_string('help:generateIdeaSub', user.get_guild()), inline=True)
             gen_embed.add_field(name='`generate prompt`', value=lib.get_string('help:generatePromptSub', user.get_guild()), inline=True)
             gen_embed.add_field(name='`generate place 20`', value=lib.get_string('help:generatePlace20Sub', user.get_guild()), inline=True)
+            gen_embed.set_footer(text=lib.get_string('help:generateFooter', user.get_guild()))
 
             return await context.send(embed=gen_embed)
 
@@ -207,6 +208,7 @@ class Help(commands.Cog, CommandWrapper):
             sprint_embed.add_field(name='`sprint join`', value=lib.get_string('help:sprintJoinSub', user.get_guild()), inline=True)
             sprint_embed.add_field(name='`sprint join 100`', value=lib.get_string('help:sprintJoin100Sub', user.get_guild()), inline=True)
             sprint_embed.add_field(name='`sprint join 100 sword`', value=lib.get_string('help:sprintJoin100SwordSub', user.get_guild()), inline=False)
+            sprint_embed.add_field(name='`sprint join edit`', value=lib.get_string('help:sprintJoinEdit', user.get_guild()), inline=True)
             sprint_embed.add_field(name='`sprint leave`', value=lib.get_string('help:sprintLeaveSub', user.get_guild()), inline=True)
             sprint_embed.add_field(name='`sprint project sword`', value=lib.get_string('help:sprintProjectSwordSub', user.get_guild()), inline=True)
             sprint_embed.add_field(name='`sprint time`', value=lib.get_string('help:sprintTimeSub', user.get_guild()), inline=True)
