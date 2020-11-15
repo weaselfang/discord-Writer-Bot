@@ -132,7 +132,7 @@
     "goal:set:daily": "This will reset every day, at midnight",
     "goal:set:weekly": "This will reset every Monday morning, at midnight",
     "goal:set:monthly": "This will reset on the 1st of every month, at midnight",
-    "goal:set:yearly": "This will reset on the 1st of Jan every month, at midnight",
+    "goal:set:yearly": "This will reset on the 1st of Jan every year, at midnight",
     "goal:met": "{} met their {} goal of {} words!      +{}xp",
     "goal:timeleft": "{} left until {} goal reset.",
     "goal:invalidtype": "Please make sure you specify a valid goal type (`daily`, `weekly`, `monthly` or `yearly`). E.g. `goal set weekly 500`.",
