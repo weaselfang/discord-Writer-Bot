@@ -97,7 +97,7 @@
     "setting:err:lang": "il n'y a pas de pack de langue pour cette langue. Veuillez choisir parmi les packs disponibles: {}",
 
     "mysetting:updated": "mise à jour du paramètre `{}` à `{}`.",
-    "mysetting:timezone:help": "Votre fuseau horaire doit être un nom de fuseau horaire valide. Veuillez consulter la page Wikipédia suivante et choisir votre fuseau horaire dans la colonne _TZ Database Name_ : https://en.wikipedia.org/wiki/List_of_tz_database_time_zones (Ça doit ressembler à quelque chose comme '_Europe/London_')",
+    "mysetting:timezone:help": "Votre fuseau horaire doit être un nom de fuseau horaire valide. Veuillez consulter la page suivante et choisir le nom du fuseau horaire : https://kevinnovak.github.io/Time-Zone-Picker/ (ça doit ressembler à quelque chose comme Europe/London)",
     "mysetting:argument:setting": "quel paramètre voulez-vous mettre à jour ?",
     "mysetting:argument:value": "quelle valeur voulez-vous donner à ce paramètre ?",
 
@@ -219,8 +219,8 @@
     "help:goalTimeSub": "Vérifie combien de temps il reste avant que votre objectif (ici, annuel) se réinitialise.", "help:goalFooter":"`weekly`: hebdomadaire, `daily`: quotidien, `monthly`: mensuel, `yearly`: annuel",
 
     "help:mysettingTzSub" : "Fixez votre fuseau horaire. (America/New_York peut être modifié selon votre fuseau horaire)",
-    "help:mysettingUrlSub" : "https://en.wikipedia.org/wiki/List_of_tz_database_time_zones",
-    "help:mysetting:footer" : "Pour le réglage du fuseau horaire, assurez-vous que la valeur que vous spécifiez est un nom de base de données TZ valide de cette page wikipédia : https://en.wikipedia.org/wiki/List_of_tz_database_time_zones.",
+    "help:mysettingUrlSub" : "https://kevinnovak.github.io/Time-Zone-Picker/",
+    "help:mysetting:footer" : "Pour le réglage du fuseau horaire, assurez-vous que la valeur que vous spécifiez est un nom de fuseau valide issu de cette page : https://kevinnovak.github.io/Time-Zone-Picker/",
 
     "help:pingSub":"Affiche le temps de latence entre le bot et le client.",
 

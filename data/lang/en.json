@@ -97,7 +97,7 @@
     "setting:err:lang": "There is no language pack for that language. Please choose from the available packs: {}",
 
     "mysetting:updated": "updated setting `{}` to: `{}`",
-    "mysetting:timezone:help": "Your timezone setting must be a valid TZ Database Name. Please see the following wikipedia page and choose your timezone from the TZ Database Name column: https://en.wikipedia.org/wiki/List_of_tz_database_time_zones (It should look something like `Europe/London`)",
+    "mysetting:timezone:help": "Your timezone setting must be a valid TZ Database Name. Please see the following page and choose your timezone: https://kevinnovak.github.io/Time-Zone-Picker/ (It should look something like `Europe/London`)",
     "mysetting:argument:setting": "What setting do you want to update?",
     "mysetting:argument:value": "What value do you want to set for this setting?",
 
@@ -220,8 +220,8 @@
     "help:goalTimeSub": "Checks how long until your yearly goal resets",
 
     "help:mysettingTzSub": "Sets your timezone. (America/New_York can be changed to your desired timezone.)",
-    "help:mysettingUrlSub": "https://en.wikipedia.org/wiki/List_of_tz_database_time_zones",
-    "help:mysetting:footer": "For the timezone setting, make sure the value you specify is a valid TZ Database Name from this wikipedia page: https://en.wikipedia.org/wiki/List_of_tz_database_time_zones",
+    "help:mysettingUrlSub": "https://kevinnovak.github.io/Time-Zone-Picker/",
+    "help:mysetting:footer": "For the timezone setting, make sure the value you specify is a valid TZ name from this page: https://kevinnovak.github.io/Time-Zone-Picker/",
     
     "help:pingSub": "Displays the amount of latency between the bot and the client.",
 
