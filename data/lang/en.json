@@ -268,6 +268,7 @@
     "help:sprintStatusSub": "Shows your current word count for the current sprint.",
     "help:sprintFooter": " `sprint cancel` can only be run by the person who started the sprint or someone with the MANAGE_MESSAGES permission.",
     "help:sprintJoinEdit": "Joins the current sprint but as a user who will not submit a word count. For example, if you are editing, rather than writing.",
+    "help:sprintJoinSame": "Joins the current sprint using the project and final word count from your most recent sprint, as your project and starting word count for this one.",
 
     "help:wroteSub": "Adds 500 to your total words written statistic (500 can be changed for your desired words written.)",
     "help:wroteprojectSub": "Adds 500 to your project with the shortname 'sword' (500 can be changed for your desired words written.)",

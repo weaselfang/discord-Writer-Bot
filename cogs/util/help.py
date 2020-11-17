@@ -20,8 +20,13 @@ class Help(commands.Cog, CommandWrapper):
 
         command = command.lower()
 
+        config = lib.get('./settings.json')
+
         if command == "help":
-            help_embed = discord.Embed(title="Help with Writer Bot", description="For more help with a command run `help [command]`", color=discord.Color.blurple())
+
+            url = config.src + '/wiki/Commands' if config.src != "" else None
+
+            help_embed = discord.Embed(title="Help with Writer Bot", description="For more help with a command run `help [command]`", color=discord.Color.blurple(), url=url)
             help_embed.add_field(name='`about`', value=lib.get_string('help:about', user.get_guild()), inline=True)
             help_embed.add_field(name='`ask`', value=lib.get_string('help:ask', user.get_guild()), inline=True)
             help_embed.add_field(name='`challenge`', value=lib.get_string('help:challenge', user.get_guild()), inline=True)
@@ -209,6 +214,7 @@ class Help(commands.Cog, CommandWrapper):
             sprint_embed.add_field(name='`sprint join 100`', value=lib.get_string('help:sprintJoin100Sub', user.get_guild()), inline=True)
             sprint_embed.add_field(name='`sprint join 100 sword`', value=lib.get_string('help:sprintJoin100SwordSub', user.get_guild()), inline=False)
             sprint_embed.add_field(name='`sprint join edit`', value=lib.get_string('help:sprintJoinEdit', user.get_guild()), inline=True)
+            sprint_embed.add_field(name='`sprint join same`', value=lib.get_string('help:sprintJoinSame', user.get_guild()), inline=True)
             sprint_embed.add_field(name='`sprint leave`', value=lib.get_string('help:sprintLeaveSub', user.get_guild()), inline=True)
             sprint_embed.add_field(name='`sprint project sword`', value=lib.get_string('help:sprintProjectSwordSub', user.get_guild()), inline=True)
             sprint_embed.add_field(name='`sprint time`', value=lib.get_string('help:sprintTimeSub', user.get_guild()), inline=True)

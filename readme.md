@@ -17,6 +17,7 @@
 [![ClosedPR][closed-shield]][closed-url]
 
 [![Discord][discord-shield]][discord-url]
+[![buddy pipeline](https://app.buddy.works/cmrwarwicker-1/discord-writer-bot/pipelines/pipeline/292118/badge.svg?token=87093bfb15df4a9419bd2cd31863b95c6d87bc38fa56051468bb0d8c90f26780 "buddy pipeline")](https://app.buddy.works/cmrwarwicker-1/discord-writer-bot/pipelines/pipeline/292118)
 
 <br />
 
