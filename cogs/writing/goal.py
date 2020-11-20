@@ -53,8 +53,34 @@ class Goal(commands.Cog, CommandWrapper):
             return await self.run_time(context, type)
         elif option == 'check':
             return await self.run_check(context, type)
+        elif option == 'history':
+            return await self.run_history(context, type)
         else:
             return await context.send(user.get_mention() + ', ' + lib.get_string('goal:invalidoption', user.get_guild()))
+
+    async def run_history(self, context, type):
+        """
+        Get the user's goal history, so they can look back and see how they did for previous goals
+        @param context:
+        @param type:
+        @return:
+        """
+        user = User(context.message.author.id, context.guild.id, context)
+        type_string = lib.get_string('goal:' + type, user.get_guild()).lower()
+        history = user.get_goal_history(type)
+
+        # Build embedded response.
+        embed = discord.Embed(title=lib.get_string('goal:history', user.get_guild()).format(type_string), color=10038562)
+
+        # Loop through each history record.
+        for record in history:
+
+            title = record['date']
+            text = str(record['result']) + '/' + str(record['goal'])
+            text += ' :white_check_mark:' if record['completed'] else ''
+            embed.add_field(name=title, value=text, inline=False)
+
+        await context.send(embed=embed)
 
     async def run_check_all(self, context):
         """

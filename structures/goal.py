@@ -23,9 +23,7 @@ class Goal:
             # Calculate the next reset time for the goal, depending on its type.
             user = User(record['user'], 0)
             try:
-                next = user.calculate_user_reset_time(record['type'])
-                lib.debug('Setting next ' + record['type'] + ' goal reset time for ' + str(record['user']) + ' to: ' + str(next))
-                self.__db.update('user_goals', {'completed': 0, 'current': 0, 'reset': next}, {'id': record['id']})
+                user.reset_goal(record)
             except pytz.exceptions.UnknownTimeZoneError:
                 lib.out('[ERROR] Invalid timezone (' + user.get_setting('timezone') + ') for user ' + str(record['user']))
 

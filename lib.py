@@ -142,6 +142,36 @@ def get_midnight_utc(timezone, type):
 
     return int(next_utc.timestamp())
 
+
+def get_previous_date(timezone, type):
+    """
+    Given a type of goal, get the previous goal's date, for the history table.
+    E.g. a daily goal would give you yesterday's date. A monthly goal would give you the first of last month.
+    @param type:
+    @return:
+    """
+    tz = pytz.timezone(timezone)
+    today = datetime.now(tz)
+
+    if type == "daily":
+        previous = today - relativedelta.relativedelta(days=1)
+        format = '%d %b %Y'
+        date = datetime.strftime(previous, format)
+    elif type == "weekly":
+        previous = today - relativedelta.relativedelta(weeks=1)
+        format = '%d %b %Y'
+        date = datetime.strftime(previous, format) + ' - ' + datetime.strftime(today, format)
+    elif type == "monthly":
+        previous = today - relativedelta.relativedelta(months=1)
+        format = '%b %Y'
+        date = datetime.strftime(previous, format)
+    elif type == "yearly":
+        previous = today - relativedelta.relativedelta(years=1)
+        format = '%Y'
+        date = datetime.strftime(previous, format)
+
+    return date
+
 def secs_to_mins(seconds):
     """
     Convert a number of seconds, into minutes and seconds

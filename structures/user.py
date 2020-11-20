@@ -469,3 +469,63 @@ class User:
         :return:
         """
         return self.__db.get_sql('SELECT * FROM sprint_users WHERE user = %s AND sprint != %s ORDER BY id DESC', [self.get_id(), current_sprint.get_id()])
+
+    def reset_goal(self, record):
+        """
+        Reset a user's goal, inserting the current values into the history table and updating their current record.
+        @param record:
+        @return:
+        """
+        # Add the current values to a new record in the history table.
+        self.__db.insert('user_goals_history', {
+            'user': record['user'],
+            'type': record['type'],
+            'date': self.get_previous_goal_date(record['type']),
+            'goal': record['goal'],
+            'result': record['current'],
+            'completed': record['completed']
+        })
+
+        # Calculate the next reset time for this goal.
+        next = self.calculate_user_reset_time(record['type'])
+
+        # Print out to the bot log what is happening.
+        lib.debug('Setting next ' + record['type'] + ' goal reset time for ' + str(record['user']) + ' to: ' + str(next))
+
+        # Update the goal record with the new reset time, resetting the completed and current values to 0.
+        self.__db.update('user_goals', {'completed': 0, 'current': 0, 'reset': next}, {'id': record['id']})
+
+    def get_previous_goal_date(self, type):
+        """
+        Given a type of goal, get the previous goal's date, for the history table.
+        E.g. a daily goal would give you yesterday's date. A monthly goal would give you the first of last month.
+        @param type:
+        @return:
+        """
+        timezone = self.get_setting('timezone') or 'UTC'
+        return lib.get_previous_date(timezone, type)
+
+    def get_goal_history(self, type):
+        """
+        Get the user's goal history for the specified goal type
+        @param type:
+        @return:
+        """
+
+        # Daily goals we want to get a maximum of 14 records.
+        if type == 'daily':
+            max = 14
+
+        # Weekly goals we want to get a maximum of 4 results.
+        elif type == 'weekly':
+            max = 4
+
+        # Monthly goals we want to get a maximum of 12 results.
+        elif type == 'monthly':
+            max = 12
+
+        # Yearly goals we can get as many as we like.
+        else:
+            max = None
+
+        return self.__db.get_all('user_goals_history', {'type': type, 'user': self.get_id()}, '*', ['id DESC'], max)

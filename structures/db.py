@@ -46,7 +46,7 @@ class Database:
             self.connection.commit()
             return True
 
-    def __build_get(self, table, where=None, fields=['*'], sort=None):
+    def __build_get(self, table, where=None, fields=['*'], sort=None, limit=None):
 
         params = []
 
@@ -68,6 +68,10 @@ class Database:
         # Did we specify some sorting?
         if sort is not None:
             sql += ' ORDER BY ' + ', '.join(sort)
+
+        # Is there a limit?
+        if limit is not None:
+            sql += ' LIMIT ' + str(limit)
 
         self.cursor.execute(sql, params)
 
@@ -134,8 +138,8 @@ class Database:
         self.cursor.execute(sql, params)
         return self.cursor.fetchone()
 
-    def get_all(self, table, where=None, fields=['*'], sort=None):
-        self.__build_get(table, where, fields, sort)
+    def get_all(self, table, where=None, fields=['*'], sort=None, limit=None):
+        self.__build_get(table, where, fields, sort, limit)
         return self.cursor.fetchall()
 
     def get_all_sql(self, sql, params):

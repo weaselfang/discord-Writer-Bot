@@ -138,6 +138,7 @@
     "goal:invalidtype": "Please make sure you specify a valid goal type (`daily`, `weekly`, `monthly` or `yearly`). E.g. `goal set weekly 500`.",
     "goal:invalidoption": "Not sure what you want to do with your goal... (Note: to check a goal, the command has changed to `goal check <type>`, e.g. `goal check daily`",
     "goal:yourgoal": "Your {} goal is to write **{}** words.",
+    "goal:history": "Your recent {} goal history",
 
     "help:about": "Info and Stats about the bot.",
     "help:ask": "Asks you questions about your story.",
@@ -145,7 +146,7 @@
     "help:8ball": "Ask a question to an 8ball.",
     "help:event": "Create server events.",
     "help:flip": "Flip a coin.",
-    "help:goal": "Set a daily goal.",
+    "help:goal": "Set/Check a daily goal.",
     "help:mysetting": "Update/change user settings.",
     "help:ping": "Latency between bot and client.",
     "help:profile": "View your writer bot profile.",
@@ -218,6 +219,7 @@
     "help:goalSetSub": "Sets your weekly goal to 500 words. (500 can be changed to your desired amount of words.)",
     "help:goalCancelSub": "Cancels your monthly goal.",
     "help:goalTimeSub": "Checks how long until your yearly goal resets",
+    "help:goalHistorySub": "Displays your monthly goal history",
 
     "help:mysettingTzSub": "Sets your timezone. (America/New_York can be changed to your desired timezone.)",
     "help:mysettingUrlSub": "https://kevinnovak.github.io/Time-Zone-Picker/",
