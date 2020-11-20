@@ -139,6 +139,7 @@
     "goal:invalidoption": "Not sure what you want to do with your goal... (Note: to check a goal, the command has changed to `goal check <type>`, e.g. `goal check daily`",
     "goal:yourgoal": "Your {} goal is to write **{}** words.",
     "goal:history": "Your recent {} goal history",
+    "goal:updated": "Manually updated {} goal to: **{}**.",
 
     "help:about": "Info and Stats about the bot.",
     "help:ask": "Asks you questions about your story.",
@@ -220,6 +221,7 @@
     "help:goalCancelSub": "Cancels your monthly goal.",
     "help:goalTimeSub": "Checks how long until your yearly goal resets",
     "help:goalHistorySub": "Displays your monthly goal history",
+    "help:goalUpdateSub": "Manually update the value of your yearly goal to 12350, without affecting anything else.",
 
     "help:mysettingTzSub": "Sets your timezone. (America/New_York can be changed to your desired timezone.)",
     "help:mysettingUrlSub": "https://kevinnovak.github.io/Time-Zone-Picker/",

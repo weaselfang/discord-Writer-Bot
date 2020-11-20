@@ -425,6 +425,19 @@ class User:
                 await self.say(lib.get_string('goal:met', self._guild).format(self.get_mention(), type, str(user_goal['goal']), str(Experience.XP_COMPLETE_GOAL[type])))
 
 
+    def update_goal(self, type, amount):
+        """
+        Just update the value of a goal, without changing anything else
+        @param type:
+        @param amount:
+        @return:
+        """
+        user_goal = self.get_goal(type)
+        if user_goal:
+            return self.__db.update('user_goals', {'current': amount}, {'id': user_goal['id']})
+        else:
+            return False
+
     def get_project(self, shortname):
         """
         Try and retrieve a project for this user, with the given shortname

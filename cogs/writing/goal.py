@@ -55,8 +55,34 @@ class Goal(commands.Cog, CommandWrapper):
             return await self.run_check(context, type)
         elif option == 'history':
             return await self.run_history(context, type)
+        elif option == 'update':
+            return await self.run_update(context, type, value)
         else:
             return await context.send(user.get_mention() + ', ' + lib.get_string('goal:invalidoption', user.get_guild()))
+
+    async def run_update(self, context, type, amount):
+        """
+        Update the value of a goal, without affecting the others or updating XP, etc...
+        Useful for if you want to record the writing you have done, before you started using Writer-Bot.
+        @param context:
+        @param type:
+        @param amount:
+        @return:
+        """
+        user = User(context.message.author.id, context.guild.id, context)
+        type_string = lib.get_string('goal:' + type, user.get_guild())
+        user_goal = user.get_goal(type)
+
+        # Check if we can convert the amount to an int
+        amount = lib.is_number(amount)
+        if not amount:
+            return await context.send(user.get_mention() + ', ' + lib.get_string('err:validamount', user.get_guild()))
+
+        # Set the goal's current amount.
+        if user_goal and user.update_goal(type, amount):
+            return await context.send(user.get_mention() + ', ' + lib.get_string('goal:updated', user.get_guild()).format(type_string, amount))
+        else:
+            return await context.send(user.get_mention() + ', ' + lib.get_string('goal:nogoal', user.get_guild()).format(type_string, type))
 
     async def run_history(self, context, type):
         """

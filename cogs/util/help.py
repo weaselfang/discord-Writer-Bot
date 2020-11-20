@@ -139,6 +139,7 @@ class Help(commands.Cog, CommandWrapper):
             goal_embed.add_field(name='`goal cancel monthly`', value=lib.get_string('help:goalCancelSub', user.get_guild()), inline=True)
             goal_embed.add_field(name='`goal time yearly`', value=lib.get_string('help:goalTimeSub', user.get_guild()), inline=True)
             goal_embed.add_field(name='`goal history monthly`', value=lib.get_string('help:goalHistorySub', user.get_guild()), inline=True)
+            goal_embed.add_field(name='`goal update yearly 12350`', value=lib.get_string('help:goalUpdateSub', user.get_guild()), inline=True)
 
             return await context.send(embed=goal_embed)
 
