@@ -198,9 +198,11 @@ class WriterBot(AutoShardedBot):
 
         # If the guild id exists in this dictionary return that, otherwise return the default.
         if message.guild is not None:
-            return prefixes.get(message.guild.id, config.prefix)
+            prefix = prefixes.get(message.guild.id, config.prefix)
         else:
-            return config.prefix
+            prefix = config.prefix
+
+        return commands.when_mentioned_or(prefix)(bot, message)
 
     @tasks.loop(seconds=SCHEDULED_TASK_LOOP)
     async def scheduled_tasks(self):
