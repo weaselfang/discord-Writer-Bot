@@ -1,6 +1,6 @@
 {
 
-    "err:nouser": "erreur : Impossible de trouver cet·te utilisateur·ice.",
+    "err:nouser": "Erreur : Impossible de trouver cet·te utilisateur·ice.",
     "err:validamount": "erreur : Veuillez entrer un nombre valide.",
     "err:unknown": "erreur : Quelque chose s'est mal passé, veuillez réessayer. (Si cette erreur persiste, veuillez la signaler sur le serveur Writer-Bot-Support, en indiquant les étapes à suivre pour reproduire l'erreur)\n\n Code d’erreur: **{}**.",
     "err:cmdoptions": "erreur : Option(s) de commande non valide(s).",
@@ -71,7 +71,7 @@
     "info:servers": "Serveurs",
     "info:members": "Membres",
     "info:sprints": "Sprints actifs",
-    "info:helperver": "Serveur d’aide",
+    "info:helpserver": "Serveur d’aide",
     "info:owner": "Propriétaire",
     "info:dev": "Information Developpeur",
     "info:dev:branch": "Branch",
@@ -127,15 +127,15 @@
     "goal:yearly": "annuel",
     "goal:status": "vous êtes à **{}%** de votre objectif {}. ({}/{})",
     "goal:nogoal": "vous n’avez actuellement pas d’objectif {}. Peut-être voulez-vous en fixer un ? `goal set {} <wordcount>`.",
-    "goal:givenup": "vous avez renoncé à votre objectif.",
+    "goal:givenup": "vous avez résilié cet objectif (mais je vous apprécie quand même :blush:)",
     "goal:set": "objectif {} fixé à **{}** mots. {} ({}). Maintenant, écrivez !",
-    "goal:set:daily": "Il sera remis à zéro tous les jours à minuit.",
-    "goal:set:weekly": "Il sera remis à zéro lundi matin à minuit.",
-    "goal:set:monthly": "Il sera remis à zéro le premier du mois à minuit.",
-    "goal:set:yearly": "Il sera remis à zéro le premier janvier à minuit. ",
+    "goal:set:daily": "Il sera remis à zéro tous les jours à minuit",
+    "goal:set:weekly": "Il sera remis à zéro lundi (matin) à minuit",
+    "goal:set:monthly": "Il sera remis à zéro le premier du mois à minuit",
+    "goal:set:yearly": "Il sera remis à zéro le premier janvier à minuit",
     "goal:met": "{} a atteint son objectif {} de mots !      +{}xp",
     "goal:timeleft": "Il reste {} avant la remise à zéro de l’objectif {}.",
-    "goal:invalidtype": "veuillez vous assurer que votre type d’objectif est renseigné (`daily` (quotidien), `weekly` (hebdomadaire), `monthly`(mensuel) ou `yearly` (annuel)). P.e. `goal set weekly 500`.",
+    "goal:invalidtype": "veuillez vous assurer que le type d’objectif est renseigné (`daily` (quotidien), `weekly` (hebdomadaire), `monthly`(mensuel) ou `yearly` (annuel)). P.e. `goal set weekly 500`.",
     "goal:invalidoption": "Pas sûre de ce que vous voulez de votre objectif… (N.B: pour vérifier un objectif, la commande a changé : `goal check <type>`, p.e. `goal check daily`).",
     "goal:yourgoal": "Votre objectif {} est d’écrire **{}** mots.",
 
@@ -219,7 +219,7 @@
     "help:goalTimeSub": "Vérifie combien de temps il reste avant que votre objectif (ici, annuel) se réinitialise.", "help:goalFooter":"`weekly`: hebdomadaire, `daily`: quotidien, `monthly`: mensuel, `yearly`: annuel",
 
     "help:mysettingTzSub" : "Fixez votre fuseau horaire. (America/New_York peut être modifié selon votre fuseau horaire)",
-    "help:mysettingUrlSub" : "https://kevinnovak.github.io/Time-Zone-Picker/",
+    "help:mysettingUrlSub" : "https://en.wikipedia.org/wiki/List_of_tz_database_time_zones",
     "help:mysetting:footer" : "Pour le réglage du fuseau horaire, assurez-vous que la valeur que vous spécifiez est un nom de fuseau valide issu de cette page : https://kevinnovak.github.io/Time-Zone-Picker/",
 
     "help:pingSub":"Affiche le temps de latence entre le bot et le client.",
@@ -267,6 +267,7 @@
     "help:sprintStatusSub" : "affiche votre compte de mots pour le sprint en cours.",
     "help:sprintFooter" : " `sprint cancel` ne peut être exécuté que par la personne qui a lancé le sprint ou quelqu'un avec la permission MANAGE_MESSAGES.",
     "help:sprintJoinEdit": "Rejoint le sprint en cours mais sans soumettre un compte de mots. Par exemple, si vous vous relisez/corrigez plutôt qu’écrire.",
+    "help:sprintJoinSame": "Rejoint le sprint en cours en reprenant le projet et le compte de mots utilisés lors du sprint le plus récent.",
 
     "help:wroteSub" : "Ajoute 500 à votre compte total de mots écrits (500 peut être modifié selon les mots écrits).",
     "help:wroteprojectSub" : "Ajoute 500 à votre projet avec le nom court 'sword' (500 peut être modifié selon les mots écrits).",
