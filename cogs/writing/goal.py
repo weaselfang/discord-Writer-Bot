@@ -22,7 +22,7 @@ class Goal(commands.Cog, CommandWrapper):
         ]
         self.types = ['daily', 'weekly', 'monthly', 'yearly']
 
-    @commands.command(name="goal")
+    @commands.command(name="goal", aliases=['goals'])
     @commands.guild_only()
     async def goal(self, context, option=None, type=None, value=None):
         """
