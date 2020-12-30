@@ -415,6 +415,8 @@
     "sprint:err:wclessthanstart": "Word count {} is less than the word count you started with ({})!\nIf you joined with a starting word count, make sure to declare your new TOTAL word count, not just the amount you wrote in this sprint.\nIf you really are trying to lower your word count for this sprint, please run: `sprint wc -{}` instead, to decrement your current word count.",
     "sprint:err:nonwordcount": "You joined this sprint as a non-word count sprinter, so you cannot declare a word count. If you wish to change that, join the sprint again with a starting word count.",
 
+    "reassure:nomention": "To reassure a user you must mention them using the `@` symbol.",
+
     "na": "N/A",
     "a": "a",
     "user": "User",
