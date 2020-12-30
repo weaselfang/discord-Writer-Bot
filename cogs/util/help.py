@@ -168,12 +168,13 @@ class Help(commands.Cog, CommandWrapper):
             project_embed.add_field(name='`project delete sword`', value=lib.get_string('help:projectDeleteSub', user.get_guild()), inline=True)
             project_embed.add_field(name='`project rename sword sword2 The Sword in the Stone Two`', value=lib.get_string('help:projectRenameSub', user.get_guild()), inline=False)
             project_embed.add_field(name='`project update sword 6500`', value=lib.get_string('help:projectUpdateSub', user.get_guild()), inline=True)
-            project_embed.add_field(name='`project complete sword`', value=lib.get_string('help:projectCompleteSub', user.get_guild()), inline=True)
-            project_embed.add_field(name='`project restart sword`', value=lib.get_string('help:projectUncompleteSub', user.get_guild()), inline=True)
-            project_embed.add_field(name='`project view`', value=lib.get_string('help:projectListSub', user.get_guild()), inline=True)
+            project_embed.add_field(name='`project list`', value=lib.get_string('help:projectListSub', user.get_guild()), inline=True)
             project_embed.add_field(name='`project view sword`', value=lib.get_string('help:projectViewShortnameSub', user.get_guild()), inline=True)
-
-            project_embed.set_footer(text=lib.get_string('help:projectFooter', user.get_guild()))
+            project_embed.add_field(name='`project status sword finished`', value=lib.get_string('help:projectStatusSub', user.get_guild()), inline=True)
+            project_embed.add_field(name='`project genre sword fantasy`', value=lib.get_string('help:projectGenreSub', user.get_guild()), inline=True)
+            project_embed.add_field(name='`project link sword http://yourwebsite.com/your-book`', value=lib.get_string('help:projectLinkSub', user.get_guild()), inline=True)
+            project_embed.add_field(name='`project image sword http://yourwebsite.com/your-image.png`', value=lib.get_string('help:projectImageSub', user.get_guild()), inline=True)
+            project_embed.add_field(name='`project description sword Boy finds sword. Boy becomes king.`', value=lib.get_string('help:projectDescSub', user.get_guild()), inline=True)
 
             return await context.send(embed=project_embed)
 
@@ -186,6 +187,7 @@ class Help(commands.Cog, CommandWrapper):
         elif command == 'reassure':
             reassure_embed=discord.Embed(title='Help with `reassure` command.', color=3897943)
             reassure_embed.add_field(name='`reassure`', value=lib.get_string('help:reassureSub', user.get_guild()), inline=True)
+            reassure_embed.add_field(name='`reassure @CMR`', value=lib.get_string('help:reassureUserSub', user.get_guild()), inline=True)
 
             return await context.send(embed=reassure_embed)
 
