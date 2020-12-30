@@ -2,12 +2,15 @@ import discord, lib, math
 from discord.ext import commands
 from structures.user import User
 from structures.wrapper import CommandWrapper
+from validator_collection import checkers
 
 class Project(commands.Cog, CommandWrapper):
 
     def __init__(self, bot):
         self.bot = bot
-        self._supported_commands = ['create', 'delete', 'rename', 'update', 'view', 'complete', 'restart', 'finish', 'uncomplete', 'list']
+        self._supported_commands = ['create', 'delete', 'rename', 'update', 'view', 'list', 'status', 'genre', 'description', 'link', 'image', 'img']
+        self._statuses = ['planning', 'progress', 'editing', 'published', 'finished', 'abandoned']
+        self._genres = ['fantasy', 'scifi', 'romance', 'horror', 'fiction', 'nonfiction', 'short', 'mystery', 'thriller', 'crime']
         self._arguments = [
             {
                 'key': 'cmd',
@@ -31,8 +34,11 @@ class Project(commands.Cog, CommandWrapper):
             `project update sword 65000` - Sets the word count for the project with the shortname "sword" to 65000.
             `project view` - Views a list of all your projects.
             `project view sword` - Views the information about the project with the shortname "sword".
-            `project complete sword` - Marks your project with the shortname "sword" as completed.
-            `project restart sword` - Marks your project with the shortname "sword" as not completed.
+            `project status sword published` - Sets the status of the project to `published`.
+            `project genre sword fantasy` - Sets the genre of the project to `fantasy`.
+            `project description sword Young boy finds sword, becomes king` - Sets the description/blurb of the project.
+            `project link sword http://website.com/your-book` - Sets the hyperlink for your project's web/store page.
+            `project img sword http://website.com/picture.png` - Sets the thumbnail picture to use for this project.
         """
         user = User(context.message.author.id, context.guild.id, context)
 
@@ -62,63 +68,132 @@ class Project(commands.Cog, CommandWrapper):
             return await self.run_view(context, opts)
         elif cmd == 'view' or cmd == 'list':
             return await self.run_view(context)
-        elif cmd == 'complete' or cmd == 'finish':
-            return await self.run_complete(context, opts)
-        elif cmd == 'restart' or cmd == 'uncomplete':
-            return await self.run_restart(context, opts)
+        elif cmd == 'status':
+            return await self.run_status(context, opts)
+        elif cmd == 'genre':
+            return await self.run_genre(context, opts)
+        elif cmd == 'description':
+            return await self.run_description(context, opts)
+        elif cmd == 'link':
+            return await self.run_link(context, opts)
+        elif cmd == 'image' or cmd == 'img':
+            return await self.run_image(context, opts)
 
-    async def run_restart(self, context, opts):
+    async def run_image(self, context, opts):
         """
-        Mark a project as not completed
-        :param context:
-        :param opts:
-        :return:
+        Update the image link of a project
+        @param context:
+        @param opts:
+        @return:
         """
         user = User(context.message.author.id, context.guild.id, context)
         shortname = opts[0].lower()
+        img = opts[1]
 
         # Make sure the project exists.
         project = user.get_project(shortname)
         if not project:
             return await context.send(user.get_mention() + ', ' + lib.get_string('project:err:noexists', user.get_guild()).format(shortname))
 
-        project.uncomplete()
-        return await context.send(user.get_mention() + ', ' + lib.get_string('project:uncompleted', user.get_guild()))
+        # Check it's a valid image link.
+        if not checkers.is_url(img):
+            return await context.send(user.get_mention() + ', ' + lib.get_string('project:err:link', user.get_guild()).format(img))
 
-    async def run_complete(self, context, opts):
+        project.set_image(img)
+        return await context.send(user.get_mention() + ', ' + lib.get_string('project:image', user.get_guild()))
+
+    async def run_link(self, context, opts):
         """
-        Mark a project as completed
-        :param context:
-        :param opts:
-        :return:
+        Update the hyperlink of a project
+        @param context:
+        @param opts:
+        @return:
         """
         user = User(context.message.author.id, context.guild.id, context)
         shortname = opts[0].lower()
+        link = opts[1]
 
         # Make sure the project exists.
         project = user.get_project(shortname)
         if not project:
             return await context.send(user.get_mention() + ', ' + lib.get_string('project:err:noexists', user.get_guild()).format(shortname))
 
-        already_completed = project.is_completed()
-        project.complete()
+        # Check it's a valid link.
+        if not checkers.is_url(link):
+            return await context.send(user.get_mention() + ', ' + lib.get_string('project:err:link', user.get_guild()).format(link))
 
-        # Was this the first time they completed it?
-        if already_completed == 0:
+        project.set_link(link)
+        return await context.send(user.get_mention() + ', ' + lib.get_string('project:link', user.get_guild()).format(link))
 
-            # Calculate how much XP to give them (1xp per 100 words). Min 10. Max 5000.
-            xp = math.ceil(project.get_words() / 100)
-            if xp < 10:
-                xp = 10
-            elif xp > 5000:
-                xp = 5000
+    async def run_description(self, context, opts):
+        """
+        Update the description of a project
+        @param context:
+        @param opts:
+        @return:
+        """
+        user = User(context.message.author.id, context.guild.id, context)
+        shortname = opts[0].lower()
+        description = " ".join(opts[1:])
 
-            # Give them the xp and print the message.
-            await user.add_xp(xp)
-            return await context.send(user.get_mention() + ', ' + lib.get_string('project:completed', user.get_guild()).format(project.get_title(), xp))
+        # Make sure the project exists.
+        project = user.get_project(shortname)
+        if not project:
+            return await context.send(user.get_mention() + ', ' + lib.get_string('project:err:noexists', user.get_guild()).format(shortname))
 
-        else:
-            return await context.send(user.get_mention() + ', ' + lib.get_string('project:recompleted', user.get_guild()))
+        # Description cannot be longer than 200 words.
+        words = description.split(' ')
+        if len(words) > 200:
+            return await context.send(user.get_mention() + ', ' + lib.get_string('project:err:desc:length', user.get_guild()).format(len(words)))
+
+        project.set_description(description)
+        return await context.send(user.get_mention() + ', ' + lib.get_string('project:description', user.get_guild()))
+
+    async def run_genre(self, context, opts):
+        """
+        Update the genre of a project
+        @param context:
+        @param opts:
+        @return:
+        """
+        user = User(context.message.author.id, context.guild.id, context)
+        shortname = opts[0].lower()
+        genre = opts[1].lower()
+
+        # Make sure the project exists.
+        project = user.get_project(shortname)
+        if not project:
+            return await context.send(user.get_mention() + ', ' + lib.get_string('project:err:noexists', user.get_guild()).format(shortname))
+
+        # Make sure the genre is valid.
+        if not genre in self._genres:
+            return await context.send(user.get_mention() + ', ' + lib.get_string('project:err:genre', user.get_guild()).format(genre, ', '.join(self._genres)))
+
+        project.set_genre(genre)
+        return await context.send(user.get_mention() + ', ' + lib.get_string('project:genre', user.get_guild()).format(lib.get_string('project:genre:'+genre, user.get_guild())))
+
+    async def run_status(self, context, opts):
+        """
+        Update the status of a project
+        @param context:
+        @param opts:
+        @return:
+        """
+        user = User(context.message.author.id, context.guild.id, context)
+        shortname = opts[0].lower()
+        status = opts[1].lower()
+
+        # Make sure the project exists.
+        project = user.get_project(shortname)
+        if not project:
+            return await context.send(user.get_mention() + ', ' + lib.get_string('project:err:noexists', user.get_guild()).format(shortname))
+
+        # Make sure the status is valid.
+        if not status in self._statuses:
+            return await context.send(user.get_mention() + ', ' + lib.get_string('project:err:status', user.get_guild()).format(status, ', '.join(self._statuses)))
+
+        project.set_status(status)
+        return await context.send(user.get_mention() + ', ' + lib.get_string('project:status', user.get_guild()).format(lib.get_string('project:status:'+status, user.get_guild())))
 
     async def run_view(self, context, opts = None):
         """
@@ -142,18 +217,18 @@ class Project(commands.Cog, CommandWrapper):
             if not project:
                 return await context.send(user.get_mention() + ', ' + lib.get_string('project:err:noexists', user.get_guild()).format(shortname))
 
-            # Re-create the array, but with just this one element in it.
-            projects = [project]
+            # Display the embedded message response for this project.
+            return await project.display(context)
 
         message = ''
 
         for project in projects:
 
-            if project.is_completed():
-                message += ':sparkler: '
-
-            message += '**'+project.get_name()+'** ('+project.get_shortname()+')\n'
-            message += lib.get_string('wordcount', user.get_guild()) + ': ' + str(project.get_words()) + '\n\n'
+            message += '**'+project.get_name()+'** ('+project.get_shortname()+') ['+ str("{:,}".format(project.get_words())) +']\n'
+            message += project.get_status_emote()
+            if project.get_genre() is not None:
+                message += '\t' + project.get_genre_emote()
+            message += '\n\n'
 
         # Project lists can get very long. If it is over 2000 characters, we need to split it.
         if len(message) >= 2000:
@@ -182,10 +257,6 @@ class Project(commands.Cog, CommandWrapper):
         project = user.get_project(shortname)
         if not project:
             return await context.send(user.get_mention() + ', ' + lib.get_string('project:err:noexists', user.get_guild()).format(shortname))
-
-        # Is it already completed?
-        if project.is_completed():
-            return await context.send(user.get_mention() + ', ' + lib.get_string('project:err:alreadycompleted', user.get_guild()).format(shortname))
 
         # Update the word count.
         project.update(amount)
