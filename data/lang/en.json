@@ -310,7 +310,7 @@
     "project:genre:crime": "Crime",
     "project:description": "Project description set.",
     "project:link": "Project link set to: {}",
-    "project:image": "Project image set to.",
+    "project:image": "Project image set.",
     "project:err:argument:cmd": "Invalid project command.",
     "project:err:names": "Please make sure your project shortname and title are set: `project create shortname title` (e.g. `project create test My Test Book`).",
     "project:err:exists": "You already have a project with that shortname ({}).",
