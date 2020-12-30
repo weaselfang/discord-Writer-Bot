@@ -24,12 +24,10 @@ class XP(commands.Cog):
 
         if who == 'top':
 
-            guild = Guild(context.guild)
-            users = guild.get_top_xp()
-            output = ':trophy: **' + lib.get_string('xp:leaderboard', guild_id) + '** :trophy: \n\n'
-            for key in range(len(users)):
-                user = users[key]
-                output += str(key + 1) + '. ' + user.get_name() + ' - ' + user.get_xp_bar() + '\n'
+            title = context.guild.name + ' - ' + lib.get_string('xp:leaderboard', guild_id)
+            embed = discord.Embed(title=title, color=discord.Color.red(), description=None)
+            embed.add_field(name=lib.get_string('xp:leaderboard', guild_id), value='Leaderboard temporarily disabled until a fix can be implemented', inline=False)
+            return await context.send(embed=embed)
 
         else:
             user = User(user_id, guild_id)
