@@ -106,8 +106,9 @@ class EventCommand(commands.Cog, CommandWrapper):
             return await context.send(user.get_mention() + ', ' + lib.get_string('event:err:noexists', user.get_guild()))
 
         event.set_context(context)
+        event.set_guild_object(context.guild)
 
-        return await context.send(embed=event.get_leaderboard(Event.LEADERBOARD_LIMIT))
+        return await context.send(embed=await event.get_leaderboard(Event.LEADERBOARD_LIMIT))
 
     async def run_unschedule(self, context):
         """

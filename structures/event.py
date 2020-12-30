@@ -15,6 +15,7 @@ class Event:
         self.__db = Database.instance()
         self.__bot = None
         self.__context = None
+        self.__guild = None
 
         self.id = None
         self.guild = None
@@ -163,6 +164,15 @@ class Event:
         :return:
         """
         self.__context = context
+        return self
+
+    def set_guild_object(self, guild):
+        """
+        Set the Guild object from the original message
+        @param guild:
+        @return:
+        """
+        self.__guild = guild
         return self
 
     def set_title(self, title):
@@ -383,7 +393,7 @@ class Event:
         record = self.__db.get('user_events', {'event': self.id}, ['SUM(words) as total'])
         return int(record['total']) if record['total'] is not None else 0
 
-    def get_leaderboard(self, limit=None):
+    async def get_leaderboard(self, limit=None):
         """
         Build the embedded leaderboard to display
         :return:
@@ -393,7 +403,7 @@ class Event:
         users = self.get_users()
 
         # Build the embedded leaderboard message
-        title = self.get_title() + ' ' + lib.get_string('event:leaderboard', self.get_guild())
+        title = self.get_title() + ' - ' + lib.get_string('event:leaderboard', self.get_guild())
         description = lib.get_string('event:leaderboard:desc', self.get_guild()).format(limit, self.get_title())
         footer = lib.get_string('event:leaderboard:footer', self.get_guild()).format(limit)
 
@@ -415,20 +425,30 @@ class Event:
         if footer:
             embed.set_footer(text=footer, icon_url=config.avatar)
 
-        # Add users
+        # Get an array of all the user ids, so we can fetch them and make sure they still exist on the guild.
+        user_ids = list(map(lambda row: row['user'], users))
+
+        # Using those user_ids, look them all up and return a list of those which are still on the guild.
+        members = await self.__guild.query_members(query=None, limit=100, cache=False, user_ids=user_ids)
+
+        # Create a sub method to find a user in the members list by their id
+        def find_member(id):
+            for m in members:
+                if m.id == id:
+                    return m
+            return None
+
+        # Loop through the users, filtering out any which are not on the guild and returning their name for display.
         position = 1
 
         for user in users:
 
-            # Get the user and pass in the bot, so we can get their guild nickname
-            user_object = User(user['user'], self.get_guild(), context=self.__context, bot=self.__bot)
-
-            # Easiest way to check if the user is still a member of the guild, is to see if we can get their nickname
-            if user_object.is_guild_member():
+            member = find_member(int(user['user']))
+            if member is not None and position <= self.LEADERBOARD_LIMIT:
 
                 # Build the name and words variables to display in the list
-                name = str(position) + '. ' + user_object.get_name()
-                words = str(user['words'])
+                name = str(position) + '. ' + member.name
+                words = str(user['words']) + ' ' + lib.get_string('words', self.get_guild())
 
                 # Embed this user result as a field
                 embed.add_field(name=name, value=words, inline=False)

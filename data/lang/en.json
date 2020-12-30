@@ -424,6 +424,7 @@
     "level": "Level",
     "levelup": ":tada: Congratulations {}, you are now **Level {}**",
     "youare": "You are",
+    "words": "Words",
     "wordcount": "Word Count",
     "finalwordcount": "Finished Word Count",
     "req:timeout": "Request for response timed out"
