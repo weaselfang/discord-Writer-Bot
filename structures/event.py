@@ -447,7 +447,7 @@ class Event:
             if member is not None and position <= self.LEADERBOARD_LIMIT:
 
                 # Build the name and words variables to display in the list
-                name = str(position) + '. ' + member.name
+                name = str(position) + '. ' + member.display_name
                 words = str(user['words']) + ' ' + lib.get_string('words', self.get_guild())
 
                 # Embed this user result as a field
