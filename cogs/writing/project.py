@@ -32,7 +32,9 @@ class Project(commands.Cog, CommandWrapper):
             `project delete sword` - Deletes the project with the shortname "sword"
             `project rename sword sword2 The Sword in the Stone Two` - Renames the project with the shortname "sword" to - shortname:sword2, title:The Sword in the Stone Two (If you want to keep the same shortname but change the title, just put the same shortname, e.g. `project rename sword sword The Sword in the Stone Two`.
             `project update sword 65000` - Sets the word count for the project with the shortname "sword" to 65000.
-            `project view` - Views a list of all your projects.
+            `project list` - Views a list of all your projects.
+            `project list status published` - Views a list of all your projects with the `published` status.
+            `project list genre fantasy` - Views a list of all your projects with the `fantasy` genre.
             `project view sword` - Views the information about the project with the shortname "sword".
             `project status sword published` - Sets the status of the project to `published`.
             `project genre sword fantasy` - Sets the genre of the project to `fantasy`.
@@ -64,10 +66,10 @@ class Project(commands.Cog, CommandWrapper):
             return await self.run_rename(context, opts)
         elif cmd == 'update':
             return await self.run_update(context, opts)
-        elif cmd == 'view' and len(opts) > 0:
+        elif cmd == 'view':
             return await self.run_view(context, opts)
-        elif cmd == 'view' or cmd == 'list':
-            return await self.run_view(context)
+        elif cmd == 'list':
+            return await self.run_list(context, opts)
         elif cmd == 'status':
             return await self.run_status(context, opts)
         elif cmd == 'genre':
@@ -205,46 +207,73 @@ class Project(commands.Cog, CommandWrapper):
         project.set_status(status)
         return await context.send(user.get_mention() + ', ' + lib.get_string('project:status', user.get_guild()).format(lib.get_string('project:status:'+status, user.get_guild())))
 
-    async def run_view(self, context, opts = None):
+    async def run_list(self, context, opts = None):
         """
         View a list of the user's projects
-        :return:
+        @param context:
+        @param opts:
+        @return:
         """
         user = User(context.message.author.id, context.guild.id, context)
-        projects = user.get_projects()
+
+        by = opts[0].lower() if opts else None
+        filter = opts[1].lower() if len(opts) > 1 else None
+
+        # If supplied, make sure the filters are valid.
+        if by is not None and by not in ['status', 'genre']:
+            return await context.send(user.get_mention() + ', ' + lib.get_string('project:err:filter:type', user.get_guild()))
+
+        if by == 'status':
+            options = self._statuses
+        elif by == 'genre':
+            options = self._genres
+
+        if by is not None and filter not in options:
+            return await context.send(user.get_mention() + ', ' + lib.get_string('project:err:filter', user.get_guild()).format(', '.join(options)))
+
+        projects = user.get_projects(by, filter)
 
         # If they have no projects, then we can't display them.
         if not projects:
             return await context.send(user.get_mention() + ', ' + lib.get_string('project:noprojects', user.get_guild()))
 
-        # Did they specify a shortname to look at?
-        if opts:
-
-            shortname = opts[0].lower()
-
-            # Make sure the project exists.
-            project = user.get_project(shortname)
-            if not project:
-                return await context.send(user.get_mention() + ', ' + lib.get_string('project:err:noexists', user.get_guild()).format(shortname))
-
-            # Display the embedded message response for this project.
-            return await project.display(context)
-
         message = ''
 
         for project in projects:
 
-            message += '**'+project.get_name()+'** ('+project.get_shortname()+') ['+ str("{:,}".format(project.get_words())) +']\n'
+            message += '**' + project.get_name() + '** (' + project.get_shortname() + ') [' + str(
+                "{:,}".format(project.get_words())) + ' '+lib.get_string('words', user.get_guild()).lower()+']\n'
             message += project.get_status_emote()
             if project.get_genre() is not None:
                 message += '\t' + project.get_genre_emote()
             message += '\n\n'
 
+        filter_string = lib.get_string('project:'+by+':'+filter, user.get_guild()) if filter is not None else lib.get_string('all', user.get_guild())
+
         # Project lists can get very long. If it is over 2000 characters, we need to split it.
         if len(message) >= 2000:
-            return await self.split_send(context, user, lib.get_string('project:list', user.get_guild()) + message)
+            return await self.split_send(context, user, lib.get_string('project:list', user.get_guild()).format(filter_string) + message)
         else:
-            return await context.send(user.get_mention() + ', ' + lib.get_string('project:list', user.get_guild()) + message)
+            return await context.send(user.get_mention() + ', ' + lib.get_string('project:list', user.get_guild()).format(filter_string) + message)
+
+    async def run_view(self, context, opts):
+        """
+        View a specific project
+        :return:
+        """
+        user = User(context.message.author.id, context.guild.id, context)
+
+        # Make sure the project exists.
+        if not opts:
+            return await context.send(user.get_mention() + ', ' + lib.get_string('project:err:empty', user.get_guild()))
+
+        shortname = opts[0].lower()
+        project = user.get_project(shortname)
+        if not project:
+            return await context.send(user.get_mention() + ', ' + lib.get_string('project:err:noexists', user.get_guild()).format(shortname))
+
+        # Display the embedded message response for this project.
+        return await project.display(context)
 
     async def run_update(self, context, opts):
         """

@@ -199,14 +199,20 @@ class Project:
         record = db.get('projects', {'user': user, 'shortname': shortname})
         return Project(record['id']) if record else None
 
-    def all(user):
+    def all(user, filter_by = None, filter = None):
         """
-        Get an array of Projects for a given user
-        :param user:
-        :return:
+        Get an array of Projects for a given user, matching any optional filter passed through
+        @param filter_by:
+        @param filter:
+        @return:
         """
         db = Database.instance()
-        records = db.get_all('projects', {'user': user}, ['id'], ['name', 'shortname', 'words'])
+
+        params = {'user': user}
+        if filter_by is not None and filter is not None:
+            params[filter_by] = filter
+
+        records = db.get_all('projects', params, ['id'], ['name', 'shortname', 'words'])
         projects = []
 
         for record in records:

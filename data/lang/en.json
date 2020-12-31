@@ -286,10 +286,10 @@
     "project:created": "Project created: {} ({})",
     "project:deleted": "Project deleted: {} ({})",
     "project:renamed": "Project renamed from: _{}_ ({}), to: _{}_ ({})",
-    "project:list": "Here are your current projects:\n\n",
+    "project:list": "Here are your current ({}) projects:\n\n",
     "project:updated": "Word count updated to **{}** words for: _{}_ ({})",
     "project:completed": "completed their project **{}**!\t+{}xp\t:sparkler:",
-    "project:noprojects": "You do not have any projects. Why not create one?",
+    "project:noprojects": "Could not find any projects. Why not create one?",
     "project:argument:cmd": "What do you want to do? `create` a project, `delete` a project, `view` a project, `rename` a project, or `update` a project? (Please see: `help project` for the full format for each of those commands)",
     "project:status": "Project status set to: {}",
     "project:status:planning": "Research/Planning",
@@ -325,6 +325,9 @@
     "project:err:genre": "Invalid genre ({}). Should be one of: `{}`",
     "project:err:desc:length": "Project description cannot be more than 200 words. ({} words found).",
     "project:err:link": "The link supplied ({}) does not appear to be a valid hyperlink.",
+    "project:err:empty": "You did not supply a project shortname to view. Did you mean `project list`?",
+    "project:err:filter:type": "Invalid filter type. Should be either `status` or `genre`.",
+    "project:err:filter": "Invalid filter. Should be one of the following options: {}",
 
     "event:argument:cmd": "What are you trying to do with an event? `create`, `update`, `delete`, etc...? See `help event` for more info.",
     "event:err:argument:cmd": "Invalid event command",
@@ -456,6 +459,7 @@
     "finalwordcount": "Finished Word Count",
     "req:timeout": "Request for response timed out",
     "status": "Status",
-    "genre": "Genre"
+    "genre": "Genre",
+    "all": "All"
 
 }

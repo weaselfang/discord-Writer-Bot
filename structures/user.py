@@ -446,12 +446,14 @@ class User:
         """
         return Project.get(self._id, shortname)
 
-    def get_projects(self):
+    def get_projects(self, filter_by = None, filter = None):
         """
         Get all of the user's projects
-        :return:
+        @param filter_by:
+        @param filter:
+        @return:
         """
-        return Project.all(self._id)
+        return Project.all(self._id, filter_by, filter)
 
 
     def create_project(self, shortname, title):
