@@ -17,7 +17,7 @@ class SprintCommand(commands.Cog, CommandWrapper):
 
     def __init__(self, bot):
         self.bot = bot
-        self._supported_commands = ['start', 'for', 'time', 'cancel', 'end', 'join', 'leave', 'wc', 'declare', 'pb', 'notify', 'forget', 'project', 'status']
+        self._supported_commands = ['start', 'for', 'time', 'cancel', 'end', 'join', 'leave', 'wc', 'declare', 'pb', 'notify', 'forget', 'project', 'status', 'in']
         self._arguments = [
             {
                 'key': 'cmd',
@@ -84,6 +84,7 @@ class SprintCommand(commands.Cog, CommandWrapper):
         # Start a sprint
         if cmd == 'start':
             return await self.run_start(context)
+
         elif cmd == 'for':
 
             length = opt1
@@ -101,6 +102,27 @@ class SprintCommand(commands.Cog, CommandWrapper):
                 delay = 0
             elif opt2.lower() == 'in':
                 delay = opt3
+
+            return await self.run_start(context, length, delay)
+
+        elif cmd == "in":
+
+            delay = opt1
+
+            # If the second option is invalid, display an error message
+            if opt2 is not None and opt2.lower() != "for":
+                return await context.send(
+                    user.get_mention()
+                    + ", "
+                    + lib.get_string("sprint:err:in:unknown", user.get_guild())
+                )
+
+            # Get the length they want before starting the sprint.
+            # If they left off the last argument and just said `sprint for 20` then assume they mean now.
+            if opt2 is None:
+                length = self.DEFAULT_LENGTH
+            elif opt2.lower() == "for":
+               length = opt3
 
             return await self.run_start(context, length, delay)
 

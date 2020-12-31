@@ -441,6 +441,7 @@
     "sprint:err:cannotend": "Only the sprint creator or the server moderators can end this sprint",
     "sprint:err:unknown": "",
     "sprint:err:for:unknown": "Sorry, I don't understand that - the correct format should be: `sprint for 20 in 5` or `sprint for 30 now`",
+    "sprint:err:in:unknown": "Sorry, I don't understand that - the correct format should be: `sprint in 20 for 5` or `sprint in 30`",
     "sprint:err:notjoined": "You are not taking part in a sprint at the moment",
     "sprint:err:notstarted": "Sprint has not started yet",
     "sprint:err:amount": "Word count must be a valid number",
