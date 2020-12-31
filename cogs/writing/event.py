@@ -530,6 +530,7 @@ class EventCommand(commands.Cog, CommandWrapper):
             return await context.send(user.get_mention() + ', ' + lib.get_string('event:err:noexists', user.get_guild()))
 
         event.set_context(context)
+        event.set_guild_object(context.guild)
 
         # Remove any tasks we already had saved for this event.
         Task.cancel('event', event.get_id())

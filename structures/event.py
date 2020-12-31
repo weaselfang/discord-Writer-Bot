@@ -299,7 +299,7 @@ class Event:
         self.set_ended(now)
         self.save()
         await self.say( lib.get_string('event:ended', self.get_guild()).format(self.get_title()) )
-        await self.say(self.get_leaderboard(), embed=True)
+        await self.say(await self.get_leaderboard(), embed=True)
 
     def get_wordcount(self, user_id):
         """
