@@ -10,7 +10,7 @@ class Project(commands.Cog, CommandWrapper):
         self.bot = bot
         self._supported_commands = ['create', 'delete', 'rename', 'update', 'view', 'list', 'status', 'genre', 'description', 'link', 'image', 'img']
         self._statuses = ['planning', 'progress', 'editing', 'published', 'finished', 'abandoned']
-        self._genres = ['fantasy', 'scifi', 'romance', 'horror', 'fiction', 'nonfiction', 'short', 'mystery', 'thriller', 'crime']
+        self._genres = ['fantasy', 'scifi', 'romance', 'horror', 'fiction', 'nonfiction', 'short', 'mystery', 'thriller', 'crime', 'erotic', 'comic']
         self._arguments = [
             {
                 'key': 'cmd',

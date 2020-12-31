@@ -94,6 +94,8 @@ class Project:
             {'genre': 'mystery', 'emote': ':detective:'},
             {'genre': 'thriller', 'emote': ':scream:'},
             {'genre': 'crime', 'emote': ':oncoming_police_car:'},
+            {'genre': 'erotic', 'emote': ':hot_pepper:'},
+            {'genre': 'comic', 'emote': ':art:'},
         ]
 
         for genre in emotes:
