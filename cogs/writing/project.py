@@ -192,6 +192,16 @@ class Project(commands.Cog, CommandWrapper):
         if not status in self._statuses:
             return await context.send(user.get_mention() + ', ' + lib.get_string('project:err:status', user.get_guild()).format(status, ', '.join(self._statuses)))
 
+        # If we are marking it finished or published for the first time, add xp.
+        if (status == 'finished' or status == 'published') and not project.is_complete():
+            xp = math.ceil(project.get_words() / 100)
+            if xp < 10:
+                xp = 10
+            elif xp > 5000:
+                xp = 5000
+            await user.add_xp(xp)
+            await context.send(user.get_mention() + ', ' + lib.get_string('project:completed', user.get_guild()).format(project.get_title(), xp))
+
         project.set_status(status)
         return await context.send(user.get_mention() + ', ' + lib.get_string('project:status', user.get_guild()).format(lib.get_string('project:status:'+status, user.get_guild())))
 

@@ -1,4 +1,4 @@
-import discord, lib
+import discord, lib, time
 from structures.db import Database
 
 class Project:
@@ -19,9 +19,13 @@ class Project:
             self._description = record['description']
             self._link = record['link']
             self._image = record['image']
+            self._completed = record['completed']
 
     def get_id(self):
         return self._id
+
+    def is_complete(self):
+        return self._completed > 0
 
     def get_user(self):
         return self._user
@@ -148,7 +152,15 @@ class Project:
         @param status:
         @return:
         """
-        return self.__db.update('projects', {'status': status}, {'id': self._id})
+        params = {'status': status}
+
+        # If we are marking it as finished or published and it's not been marked as completed before, add xp.
+        if (status == 'finished' or status == 'published') and not self.is_complete():
+
+            # Mark the project as completed.
+            params['completed'] = int(time.time())
+
+        return self.__db.update('projects', params, {'id': self._id})
 
     def set_link(self, link):
         """
