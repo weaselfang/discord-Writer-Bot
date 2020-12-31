@@ -89,8 +89,8 @@ class Project(commands.Cog, CommandWrapper):
         @return:
         """
         user = User(context.message.author.id, context.guild.id, context)
-        shortname = opts[0].lower()
-        img = opts[1]
+        shortname = opts[0].lower() if opts else None
+        img = opts[1] if len(opts) > 1 else None
 
         # Make sure the project exists.
         project = user.get_project(shortname)
@@ -98,7 +98,7 @@ class Project(commands.Cog, CommandWrapper):
             return await context.send(user.get_mention() + ', ' + lib.get_string('project:err:noexists', user.get_guild()).format(shortname))
 
         # Check it's a valid image link.
-        if not checkers.is_url(img):
+        if not checkers.is_url(img) and img is not None:
             return await context.send(user.get_mention() + ', ' + lib.get_string('project:err:link', user.get_guild()).format(img))
 
         project.set_image(img)
@@ -112,8 +112,8 @@ class Project(commands.Cog, CommandWrapper):
         @return:
         """
         user = User(context.message.author.id, context.guild.id, context)
-        shortname = opts[0].lower()
-        link = opts[1]
+        shortname = opts[0].lower() if opts else None
+        link = opts[1] if len(opts) > 1 else None
 
         # Make sure the project exists.
         project = user.get_project(shortname)
@@ -121,7 +121,7 @@ class Project(commands.Cog, CommandWrapper):
             return await context.send(user.get_mention() + ', ' + lib.get_string('project:err:noexists', user.get_guild()).format(shortname))
 
         # Check it's a valid link.
-        if not checkers.is_url(link):
+        if not checkers.is_url(link) and link is not None:
             return await context.send(user.get_mention() + ', ' + lib.get_string('project:err:link', user.get_guild()).format(link))
 
         project.set_link(link)
@@ -159,8 +159,8 @@ class Project(commands.Cog, CommandWrapper):
         @return:
         """
         user = User(context.message.author.id, context.guild.id, context)
-        shortname = opts[0].lower()
-        genre = opts[1].lower()
+        shortname = opts[0].lower() if opts else None
+        genre = opts[1].lower() if len(opts) > 1 else None
 
         # Make sure the project exists.
         project = user.get_project(shortname)
@@ -182,8 +182,8 @@ class Project(commands.Cog, CommandWrapper):
         @return:
         """
         user = User(context.message.author.id, context.guild.id, context)
-        shortname = opts[0].lower()
-        status = opts[1].lower()
+        shortname = opts[0].lower() if opts else None
+        status = opts[1].lower() if len(opts) > 1 else None
 
         # Make sure the project exists.
         project = user.get_project(shortname)
