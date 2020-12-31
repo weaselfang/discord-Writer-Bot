@@ -13,6 +13,7 @@ class SprintCommand(commands.Cog, CommandWrapper):
     DEFAULT_DELAY = 2 # 2 minutes
     MAX_LENGTH = 60 # 1 hour
     MAX_DELAY = 60 * 24 # 24 hours
+    WPM_CHECK = 150 # If WPM exceeds this amount, check that the user meant to submit that many words
 
     def __init__(self, bot):
         self.bot = bot
@@ -254,9 +255,26 @@ class SprintCommand(commands.Cog, CommandWrapper):
 
         # Is the sprint finished? If so this will be an ending_wc declaration, not a current_wc one.
         col = 'ending' if sprint.is_finished() else 'current'
-        arg = {col: new_amount}
+
+        # Before we actually update it, if the WPM is huge and most likely an error, just check with them if they meant to put that many words.
+        written = new_amount - int(user_sprint['starting_wc'])
+        seconds = int(time.time()) - user_sprint['timejoined']
+        wpm = Sprint.calculate_wpm(written, seconds)
+
+        if wpm > self.WPM_CHECK:
+
+            # Make a fake prompt to wait for confirmation.
+            argument = {'prompt': lib.get_string('sprint:wpm:sure', user.get_guild()).format(written, wpm),
+                        'check': lambda resp: resp.lower() in ('y', 'yes', 'n', 'no')}
+
+            response = await self.adhoc_prompt(context, argument, True)
+
+            # If they confirm, then delete the event.
+            if response is False or response.content.lower() in ('n', 'no'):
+                return await context.send(user.get_mention() + ', ' + lib.get_string('sprint:declareagain', user.get_guild()))
 
         # Update the user's sprint record
+        arg = {col: new_amount}
         sprint.update_user(user.get_id(), **arg)
 
         # Reload the user sprint info
