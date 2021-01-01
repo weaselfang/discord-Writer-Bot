@@ -433,6 +433,8 @@
     "sprint:stats": "Sprint Statistics",
     "sprint:wpm:sure": "Did you really mean to submit {} words? That would be {} wpm. Please respond with `yes` or `no`. If there is no response within 30 seconds, the command will cancelled.",
     "sprint:declareagain": "Declaration cancelled. Please declare your word count again.",
+    "sprint:purged": "Purged {} old users from sprint notifications",
+    "sprint:purged:none": "No users to purge from sprint notifications",
 
     "sprint:err:cmd": "Invalid sprint command... Run `!help sprint` for more information on the sprint command.",
     "sprint:err:alreadyexists": "There is already a sprint running on this server. Please wait until it has finished before creating a new one.",

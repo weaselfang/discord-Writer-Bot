@@ -17,7 +17,7 @@ class SprintCommand(commands.Cog, CommandWrapper):
 
     def __init__(self, bot):
         self.bot = bot
-        self._supported_commands = ['start', 'for', 'time', 'cancel', 'end', 'join', 'leave', 'wc', 'declare', 'pb', 'notify', 'forget', 'project', 'status', 'in']
+        self._supported_commands = ['start', 'for', 'time', 'cancel', 'end', 'join', 'leave', 'wc', 'declare', 'pb', 'notify', 'forget', 'project', 'status', 'in', 'purge']
         self._arguments = [
             {
                 'key': 'cmd',
@@ -158,6 +158,22 @@ class SprintCommand(commands.Cog, CommandWrapper):
 
         elif cmd == 'project':
             return await self.run_project(context, opt1)
+
+        elif cmd == 'purge':
+            return await self.run_purge(context)
+
+    async def run_purge(self, context):
+        """
+        Purge any users who asked for notifications but aren't on the server any more.
+        @param context:
+        @return:
+        """
+        user = User(context.message.author.id, context.guild.id, context)
+        purged = await Sprint.purge_notifications(context)
+        if purged > 0:
+            return await context.send(lib.get_string('sprint:purged', user.get_guild()).format(purged))
+        else:
+            return await context.send(lib.get_string('sprint:purged:none', user.get_guild()))
 
     async def run_project(self, context, shortname):
         """

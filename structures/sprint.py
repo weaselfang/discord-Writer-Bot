@@ -610,6 +610,34 @@ class Sprint:
         await self.complete(bot=bot)
         return True
 
+    async def purge_notifications(context):
+        """
+        Purge notify notifications of any users who aren't in ths server any more.
+        @return:
+        """
+        db = Database.instance()
+        count = 0
+        notify = db.get_all('user_settings', {'guild': context.guild.id, 'setting': 'sprint_notify', 'value': 1})
+        notify_ids = [int(row['user']) for row in notify]
+        if notify_ids:
+
+            members = await context.guild.query_members(limit=100, cache=False, user_ids=notify_ids)
+
+            # Create a sub method to find a user in the members list by their id
+            def find_member(id):
+                for m in members:
+                    if m.id == id:
+                        return m
+                return None
+
+            # Go through the users who want notifications and delete any which aren't in the server now.
+            for row in notify:
+                if not find_member(int(row['user'])):
+                    db.delete('user_settings', {'id': row['id']})
+                    count += 1
+
+        return count
+
     def calculate_wpm(amount, seconds):
         """
         Calculate words per minute, from words written and seconds
