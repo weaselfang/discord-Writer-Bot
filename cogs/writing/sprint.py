@@ -625,9 +625,6 @@ class SprintCommand(commands.Cog, CommandWrapper):
         # Increment the user's stat for sprints created
         user.add_stat('sprints_started', 1)
 
-        # Now, before we start, use this opportunity to filter out any notifications for users who have left the guild.
-        await sprint.update_notify_users(context)
-
         # Are we starting immediately or after a delay?
         if start == 0:
             # Immediately. That means we need to schedule the end task.

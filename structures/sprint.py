@@ -199,30 +199,6 @@ class Sprint:
         users_ids = self.get_users()
         return numpy.setdiff1d(notify_ids, users_ids).tolist()
 
-    async def update_notify_users(self, context):
-        """
-        Remove any users who asked for notifications, who have since left the server.
-        @param context:
-        @return:
-        """
-        notify = self.__db.get_all('user_settings', {'guild': self._guild, 'setting': 'sprint_notify', 'value': 1})
-        notify_ids = [int(row['user']) for row in notify]
-
-        members = await context.guild.query_members(query=None, limit=100, cache=False, user_ids=notify_ids)
-
-        # Create a sub method to find a user in the members list by their id
-        def find_member(id):
-            for m in members:
-                if m.id == id:
-                    return m
-            return None
-
-        # Go through the users who want notifications and delete any which aren't in the server now.
-        for row in notify:
-            if not find_member(int(row['user'])):
-                self.__db.delete('user_settings', {'id': row['id']})
-
-
     def get_notifications(self, users):
         """
         Get an array of user mentions for each person in the supplied array of userids
