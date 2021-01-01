@@ -429,32 +429,33 @@ class Event:
         user_ids = list(map(lambda row: row['user'], users))
 
         # Using those user_ids, look them all up and return a list of those which are still on the guild.
-        members = await self.__guild.query_members(query=None, limit=100, cache=False, user_ids=user_ids)
+        if user_ids:
+            members = await self.__guild.query_members(limit=100, cache=False, user_ids=user_ids)
 
-        # Create a sub method to find a user in the members list by their id
-        def find_member(id):
-            for m in members:
-                if m.id == id:
-                    return m
-            return None
+            # Create a sub method to find a user in the members list by their id
+            def find_member(id):
+                for m in members:
+                    if m.id == id:
+                        return m
+                return None
 
-        # Loop through the users, filtering out any which are not on the guild and returning their name for display.
-        position = 1
+            # Loop through the users, filtering out any which are not on the guild and returning their name for display.
+            position = 1
 
-        for user in users:
+            for user in users:
 
-            member = find_member(int(user['user']))
-            if member is not None and position <= self.LEADERBOARD_LIMIT:
+                member = find_member(int(user['user']))
+                if member is not None and position <= self.LEADERBOARD_LIMIT:
 
-                # Build the name and words variables to display in the list
-                name = str(position) + '. ' + member.display_name
-                words = str(user['words']) + ' ' + lib.get_string('words', self.get_guild())
+                    # Build the name and words variables to display in the list
+                    name = str(position) + '. ' + member.display_name
+                    words = str(user['words']) + ' ' + lib.get_string('words', self.get_guild())
 
-                # Embed this user result as a field
-                embed.add_field(name=name, value=words, inline=False)
+                    # Embed this user result as a field
+                    embed.add_field(name=name, value=words, inline=False)
 
-                # Increment position
-                position += 1
+                    # Increment position
+                    position += 1
 
         return embed
 
