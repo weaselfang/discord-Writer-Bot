@@ -10,6 +10,7 @@
     "err:permissions": "Error: You do not have the permissions to do that on this server.",
     "err:yesorno": "Please respond with either `yes` or `no`.",
     "err:commandinvoke": "**Error invoking command**\nThis could be caused by the bot not having all the correct permissions it needs on this server (READ, WRITE, EMBED_LINKS).\nIf you are sure the permissions are correct, please report this error on the Writer-Bot support server.\n\nError code: **{}**",
+    "err:notimezone": "You need to set a valid timezone in order to do this. Please see `help mysetting`.",
 
     "admin:argument:cmd": "What are you trying to do?",
     "admin:err:argument": "Invalid argument",
@@ -443,6 +444,7 @@
     "sprint:err:cannotend": "Only the sprint creator or the server moderators can end this sprint",
     "sprint:err:unknown": "",
     "sprint:err:for:unknown": "Sorry, I don't understand that - the correct format should be: `sprint for 20 in 5` or `sprint for 30 now`",
+    "sprint:err:for:at": "Sorry, I don't understand that - the correct format should be: `sprint for 20 at :15`",
     "sprint:err:in:unknown": "Sorry, I don't understand that - the correct format should be: `sprint in 20 for 5` or `sprint in 30`",
     "sprint:err:notjoined": "You are not taking part in a sprint at the moment",
     "sprint:err:notstarted": "Sprint has not started yet",

@@ -1,4 +1,5 @@
 import discord, lib, time
+from datetime import datetime
 from discord.ext import commands
 from structures.generator import NameGenerator
 from structures.project import Project
@@ -90,7 +91,7 @@ class SprintCommand(commands.Cog, CommandWrapper):
             length = opt1
 
             # If the second option is invalid, display an error message
-            if opt2 is not None and opt2.lower() not in ['now', 'in']:
+            if opt2 is not None and opt2.lower() not in ['now', 'in', 'at']:
                 return await context.send(user.get_mention() + ', ' + lib.get_string('sprint:err:for:unknown', user.get_guild()))
 
             # If they left off the last argument and just said `sprint for 20` then assume they mean now.
@@ -102,6 +103,22 @@ class SprintCommand(commands.Cog, CommandWrapper):
                 delay = 0
             elif opt2.lower() == 'in':
                 delay = opt3
+            elif opt2.lower() == 'at':
+
+                # Make sure the user has set their timezone, otherwise we can't calculate it.
+                timezone = user.get_setting('timezone')
+                user_timezone = lib.get_timezone(timezone)
+                if not user_timezone:
+                    return await context.send(user.get_mention() + ', ' + lib.get_string('err:notimezone', user.get_guild()))
+
+                # If they are doing `sprint for 20 at :15` for example, then opt3 must be set in the format ':00'.
+                start = int(opt3[1:]) if (isinstance(opt3, str) and opt3.startswith(':') and len(opt3) == 3) else opt3
+                if not isinstance(start, int) or start < 0 or start >= 60:
+                    return await context.send(user.get_mention() + ', ' + lib.get_string('sprint:err:for:at', user.get_guild()))
+
+                # Now using their timezone and the minute they requested, calculate when that should be.
+                user_timezone = lib.get_timezone(timezone)
+                delay = (60 + start - datetime.now(user_timezone).minute) % 60
 
             return await self.run_start(context, length, delay)
 

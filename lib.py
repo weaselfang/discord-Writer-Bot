@@ -111,6 +111,22 @@ def is_number(value):
     except (ValueError, TypeError):
         return False
 
+def is_valid_timezone(timezone):
+    """
+    Check if the timezone string is valid
+    @param timezone:
+    @return:
+    """
+    return timezone in pytz.all_timezones
+
+def get_timezone(timezone):
+    """
+    Return a pytz timezone from a string
+    @param timezone:
+    @return:
+    """
+    return pytz.timezone(timezone) if is_valid_timezone(timezone) else None
+
 def get_midnight_utc(timezone, type):
     """
     Given a timezone name, get the UTC timestamp for midnight at the next (day, week, month, year).
