@@ -610,6 +610,15 @@ class Sprint:
         await self.complete(bot=bot)
         return True
 
+    def update_end_reference(self, end_reference):
+        """
+        Update the end reference
+        @param end:
+        @return:
+        """
+        self.__db.update('sprints', {'end_reference': end_reference}, {'id': self._id})
+
+
     async def purge_notifications(context):
         """
         Purge notify notifications of any users who aren't in ths server any more.

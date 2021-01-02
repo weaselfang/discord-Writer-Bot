@@ -240,6 +240,9 @@ class SprintCommand(commands.Cog, CommandWrapper):
         if not sprint.has_started():
             return await context.send(user.get_mention() + ', ' + lib.get_string('sprint:err:notstarted', user.get_guild()))
 
+        # Change the end reference to now, otherwise wpm calculations will be off, as it will use the time in the future when it was supposed to end.
+        sprint.update_end_reference(int(time.time()))
+
         # Since we are forcing the end, we should cancel any pending tasks for this sprint
         Task.cancel('sprint', sprint.get_id())
 
@@ -313,10 +316,15 @@ class SprintCommand(commands.Cog, CommandWrapper):
 
         # Before we actually update it, if the WPM is huge and most likely an error, just check with them if they meant to put that many words.
         written = new_amount - int(user_sprint['starting_wc'])
-        seconds = int(time.time()) - user_sprint['timejoined']
+        seconds = int(sprint.get_end_reference()) - user_sprint['timejoined']
         wpm = Sprint.calculate_wpm(written, seconds)
 
-        if wpm > self.WPM_CHECK:
+        # Does the user have a configured setting for max wpm to check?
+        max_wpm = user.get_setting('maxwpm')
+        if not max_wpm:
+            max_wpm = self.WPM_CHECK
+
+        if wpm > int(max_wpm):
 
             # Make a fake prompt to wait for confirmation.
             argument = {'prompt': lib.get_string('sprint:wpm:sure', user.get_guild()).format(written, wpm),

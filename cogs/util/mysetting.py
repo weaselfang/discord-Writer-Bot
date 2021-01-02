@@ -8,7 +8,7 @@ class MySetting(commands.Cog, CommandWrapper):
 
     def __init__(self, bot):
         self.bot = bot
-        self._supported_settings = ['timezone']
+        self._supported_settings = ['timezone', 'maxwpm']
         self._arguments = [
             {
                 'key': 'setting',
@@ -69,6 +69,12 @@ class MySetting(commands.Cog, CommandWrapper):
             except pytz.exceptions.UnknownTimeZoneError:
                 await context.send(lib.get_string('mysetting:timezone:help', user.get_guild()))
                 return
+
+        elif setting == 'maxwpm':
+            # Must be a number.
+            value = lib.is_number(value)
+            if not value or value <= 0:
+                return await context.send(user.get_mention() + ', ' + lib.get_string('mysetting:err:maxwpm', user.get_guild()))
 
         # Update the setting and post the success message
         user.update_setting(setting, value)
