@@ -111,8 +111,8 @@ class SprintCommand(commands.Cog, CommandWrapper):
                 if not user_timezone:
                     return await context.send(user.get_mention() + ', ' + lib.get_string('err:notimezone', user.get_guild()))
 
-                # If they are doing `sprint for 20 at :15` for example, then opt3 must be set in the format ':00'.
-                start = int(opt3[1:]) if (isinstance(opt3, str) and opt3.startswith(':') and len(opt3) == 3) else opt3
+                # If they are doing `sprint for 20 at :15` for example, then opt3 must be set in the format '.00'.
+                start = int(opt3[1:]) if (isinstance(opt3, str) and opt3.startswith('.') and len(opt3) == 3) else opt3
                 if not isinstance(start, int) or start < 0 or start >= 60:
                     return await context.send(user.get_mention() + ', ' + lib.get_string('sprint:err:for:at', user.get_guild()))
 

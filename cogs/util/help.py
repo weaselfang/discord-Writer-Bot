@@ -213,6 +213,7 @@ class Help(commands.Cog, CommandWrapper):
             sprint_embed=discord.Embed(title='Help with `sprint` Command.', color=3897943)
             sprint_embed.add_field(name='`sprint start`', value=lib.get_string('help:sprintStartSub', user.get_guild()), inline=True)
             sprint_embed.add_field(name='`sprint for 20 in 3`', value=lib.get_string('help:sprint20in3Sub', user.get_guild()), inline=True)
+            sprint_embed.add_field(name='`sprint for 20 at .30`', value=lib.get_string('help:sprintForAt', user.get_guild()), inline=True)
             sprint_embed.add_field(name='`sprint cancel`', value=lib.get_string('help:sprintCancelSub', user.get_guild()), inline=False)
             sprint_embed.add_field(name='`sprint join`', value=lib.get_string('help:sprintJoinSub', user.get_guild()), inline=True)
             sprint_embed.add_field(name='`sprint join 100`', value=lib.get_string('help:sprintJoin100Sub', user.get_guild()), inline=True)

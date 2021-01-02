@@ -117,7 +117,8 @@ def is_valid_timezone(timezone):
     @param timezone:
     @return:
     """
-    return timezone in pytz.all_timezones
+    timezones = [x.lower() for x in pytz.all_timezones]
+    return timezone.lower() in timezones
 
 def get_timezone(timezone):
     """

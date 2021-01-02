@@ -277,6 +277,7 @@
     "help:sprintFooter": " `sprint cancel` can only be run by the person who started the sprint or someone with the MANAGE_MESSAGES permission.",
     "help:sprintJoinEdit": "Joins the current sprint but as a user who will not submit a word count. For example, if you are editing, rather than writing.",
     "help:sprintJoinSame": "Joins the current sprint using the project and final word count from your most recent sprint, as your project and starting word count for this one.",
+    "help:sprintForAt": "Schedules a sprint for 20 minutes, starting the next time it is half past the hour",
 
     "help:wroteSub": "Adds 500 to your total words written statistic (500 can be changed for your desired words written.)",
     "help:wroteprojectSub": "Adds 500 to your project with the shortname 'sword' (500 can be changed for your desired words written.)",
@@ -444,7 +445,7 @@
     "sprint:err:cannotend": "Only the sprint creator or the server moderators can end this sprint",
     "sprint:err:unknown": "",
     "sprint:err:for:unknown": "Sorry, I don't understand that - the correct format should be: `sprint for 20 in 5` or `sprint for 30 now`",
-    "sprint:err:for:at": "Sorry, I don't understand that - the correct format should be: `sprint for 20 at :15`",
+    "sprint:err:for:at": "Sorry, I don't understand that - the correct format should be: `sprint for 20 at .15`",
     "sprint:err:in:unknown": "Sorry, I don't understand that - the correct format should be: `sprint in 20 for 5` or `sprint in 30`",
     "sprint:err:notjoined": "You are not taking part in a sprint at the moment",
     "sprint:err:notstarted": "Sprint has not started yet",
