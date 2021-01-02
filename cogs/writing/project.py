@@ -250,8 +250,8 @@ class Project(commands.Cog, CommandWrapper):
 
         filter_string = lib.get_string('project:'+by+':'+filter, user.get_guild()) if filter is not None else lib.get_string('all', user.get_guild())
 
-        # Project lists can get very long. If it is over 2000 characters, we need to split it.
-        if len(message) >= 2000:
+        # Project lists can get very long. If it is over 2000 characters, we need to split it. Using 1750 to give us leeway on the user mention as well.
+        if len(message) >= 1750:
             return await self.split_send(context, user, lib.get_string('project:list', user.get_guild()).format(filter_string) + message)
         else:
             return await context.send(user.get_mention() + ', ' + lib.get_string('project:list', user.get_guild()).format(filter_string) + message)
