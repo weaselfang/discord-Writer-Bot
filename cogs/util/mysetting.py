@@ -47,7 +47,7 @@ class MySetting(commands.Cog, CommandWrapper):
                 for setting, value in settings.items():
                     output += setting + '=' + str(value) + '\n'
             else:
-                output += lib.get_string('setting:none', guild.get_id())
+                output += lib.get_string('setting:none', user.get_guild())
             output += '```'
             return await context.send(user.get_mention() + ',\n' + output)
 
