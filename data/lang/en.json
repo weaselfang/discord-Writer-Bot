@@ -285,7 +285,16 @@
 
     "help:xpSub": "Displays your xp/level.",
     "help:xpTopSub": "Shows the top ten users on the current server.",
-    
+
+    "help:remind": "Lets you set reminder messages",
+    "help:remind:list": "Displays a list of your current reminders",
+    "help:remind:delete": "Displays a list of your current reminders with the option to delete 1 or more of them",
+    "help:remind:set:in": "Sets a reminder for 5 minutes from now, to send the message 'hello everyone' to #channel-name",
+    "help:remind:set:at": "Sets a reminder for 12:00 in your timezone, to send the message 'hello everyone' to #channel-name",
+    "help:remind:set:every:hour": "Sets a reminder to run every hour, starting at 16:05 in your timezone, to send the message 'hello everyone' to #channel-name",
+    "help:remind:set:every:day": "Sets a reminder to run every day, at 16:05 in your timezone, to send the message 'hello everyone' to #channel-name",
+    "help:remind:set:every:week": "Sets a reminder to run every 7 days, at 16:05 in your timezone, to send the message 'hello everyone' to #channel-name",
+
     "project:created": "Project created: {} ({})",
     "project:deleted": "Project deleted: {} ({})",
     "project:renamed": "Project renamed from: _{}_ ({}), to: _{}_ ({})",
