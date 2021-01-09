@@ -1,4 +1,4 @@
-import discord, lib
+import discord, lib, time
 from discord.ext import commands
 from structures.generator import NameGenerator
 from structures.user import User
@@ -8,7 +8,10 @@ class Generate(commands.Cog, CommandWrapper):
 
     def __init__(self, bot):
         self.bot = bot
-        self._supported_types = ['char', 'place', 'land', 'idea', 'book', 'book_fantasy', 'book_horror', 'book_hp', 'book_mystery', 'book_rom', 'book_sf', 'prompt']
+        self._supported_types = ['char', 'place', 'land', 'idea', 'book', 'book_fantasy', 'book_horror', 'book_hp', 'book_mystery', 'book_rom', 'book_sf', 'prompt', 'face']
+        self._urls = {
+            'face': 'https://thispersondoesnotexist.com/image'
+        }
         self._arguments = [
             {
                 'key': 'type',
@@ -45,6 +48,7 @@ class Generate(commands.Cog, CommandWrapper):
             !generate book_hp - generates 10 Harry Potter book title
             !generate idea - generates a random story idea
             !generate prompt - generates a story prompt
+            !generate face - generates a random person's face
         """
 
         user = User(context.message.author.id, context.guild.id, context)
@@ -61,9 +65,19 @@ class Generate(commands.Cog, CommandWrapper):
         type = args['type'].lower()
         amount = int(args['amount'])
 
+        # For faces, we want to just call an API url.
+        if type == 'face':
+            return await context.send(self._urls['face'] + '?t=' + str(int(time.time())))
+
         generator = NameGenerator(type, context)
         results = generator.generate(amount)
-        names = '\n'.join(results['names'])
+        join = '\n'
+
+        # For prompts, add an extra line between them.
+        if type == 'prompt':
+            join += '\n'
+
+        names = join.join(results['names'])
 
         return await context.send(user.get_mention() + ', ' + results['message'] + names)
 

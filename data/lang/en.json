@@ -215,6 +215,7 @@
     "help:generateIdeaSub": "Generates a random story idea.",
     "help:generatePlace20Sub": "Generates 20 place names (Place can be changed to any of the above choices. 20 can be changed to you desired amount.)",
     "help:generateLandSub": "Generates 10 random fantasy land names",
+    "help:generateFace": "Generates a random face for your character.",
     "help:generateFooter": "",
 
     "help:goalSub": "Prints a list of all your goals and their statuses.",

@@ -128,6 +128,7 @@ class Help(commands.Cog, CommandWrapper):
             gen_embed.add_field(name='`generate idea`', value=lib.get_string('help:generateIdeaSub', user.get_guild()), inline=True)
             gen_embed.add_field(name='`generate prompt`', value=lib.get_string('help:generatePromptSub', user.get_guild()), inline=True)
             gen_embed.add_field(name='`generate place 20`', value=lib.get_string('help:generatePlace20Sub', user.get_guild()), inline=True)
+            gen_embed.add_field(name='`generate face`', value=lib.get_string('help:generateFace', user.get_guild()), inline=True)
             gen_embed.set_footer(text=lib.get_string('help:generateFooter', user.get_guild()))
 
             return await context.send(embed=gen_embed)
