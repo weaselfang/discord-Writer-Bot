@@ -1,6 +1,7 @@
 import lib, math, time
 from structures.db import Database
 from structures.project import Project
+from structures.reminder import Reminder
 from structures.xp import Experience
 
 class User:
@@ -544,3 +545,10 @@ class User:
             max = None
 
         return self.__db.get_all('user_goals_history', {'type': type, 'user': self.get_id()}, '*', ['id DESC'], max)
+
+    def get_reminders(self):
+        """
+        Get a list of all the reminders the user has set
+        @return:
+        """
+        return Reminder.all(user=self.get_id(), guild=self.get_guild())

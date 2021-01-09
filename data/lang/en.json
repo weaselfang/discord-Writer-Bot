@@ -235,7 +235,7 @@
 
     "help:projectCreateSub": "Creates a new project with the shortname 'sword' (used to reference the project when updating), and the full title 'The Sword in the Stone'",
     "help:projectDeleteSub": "Deletes the project with the shortname 'sword'",
-    "help:projectRenameSub": "Rename the project with the shortname 'sword' to shortname: 'sword2' and title: 'The Sword in the Stone Two'. (If you want to keep the same shortname but change the title just use the same short name, e.g. `!project rename sword sword Sword in the Stone Two`",
+    "help:projectRenameSub": "Rename the project with the shortname 'sword' to shortname: 'sword2' and title: 'The Sword in the Stone Two'. (If you want to keep the same shortname but change the title just use the same short name, e.g. `project rename sword sword Sword in the Stone Two`",
     "help:projectUpdateSub": "Sets the project with the shortname 'sword' word count to 6500 (6500 can be changed to your desired word count.)",
     "help:projectListSub": "View a list of all your projects",
     "help:projectViewShortnameSub": "View the word count of your project with the shortname 'sword'.",
@@ -439,7 +439,7 @@
     "sprint:purged": "Purged {} old users from sprint notifications",
     "sprint:purged:none": "No users to purge from sprint notifications",
 
-    "sprint:err:cmd": "Invalid sprint command... Run `!help sprint` for more information on the sprint command.",
+    "sprint:err:cmd": "Invalid sprint command... Run `help sprint` for more information on the sprint command.",
     "sprint:err:alreadyexists": "There is already a sprint running on this server. Please wait until it has finished before creating a new one.",
     "sprint:err:noexists": "There is no active sprint on this server. Maybe you should start one? `sprint start`",
     "sprint:err:cannotcancel": "Only the sprint creator or the server moderators can cancel this sprint",
@@ -455,6 +455,20 @@
     "sprint:err:nonwordcount": "You joined this sprint as a non-word count sprinter, so you cannot declare a word count. If you wish to change that, join the sprint again with a starting word count.",
 
     "reassure:nomention": "To reassure a user you must mention them using the `@` symbol.",
+
+    "remind:created": "Reminder set for {}",
+    "remind:list": "Here are your current reminders:\n",
+    "remind:delete": "Please respond with the reminder numbers you wish to delete. If it is more than one, seperate them with commas, e.g. `1,4,16`. Or `all` to delete them all.",
+    "remind:deleted": "{} reminders deleted.",
+    "remind:interval": "Repeats every {}",
+    "remind:anytimenow": "Any time now!",
+    "remind:argument:cmd": "Invalid remind command... Run `help remind` for more information on the remind command.",
+    "remind:err:argument:cmd": "Invalid remind command... Run `help remind` for more information on the remind command.",
+    "remind:err:format": "Invalid reminder format. Please run `help remind` to check the valid formats.",
+    "remind:err:channel": "Invalid channel.",
+    "remind:err:date": "Invalid date/time. Please choose a date/time in the future.",
+    "remind:err:message": "Reminder message cannot be more than 255 characters long. ({}). (Bear in mind, discord 'Mentions' use more characters than they appear to).",
+    "remind:err:interval": "Invalid interval. Should be either `hour`, `day`, `week` or `month`.",
 
     "na": "N/A",
     "a": "a",

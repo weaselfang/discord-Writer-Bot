@@ -1,8 +1,6 @@
 import lib, time
 from structures.db import Database
 
-from pprint import pprint
-
 class Task:
 
     def __init__(self, id):
@@ -102,6 +100,13 @@ class Task:
             else:
                 # If the event doesn't exist, then we can just delete this task.
                 return True
+
+        elif self.object == 'reminder':
+
+            from structures.reminder import Reminder
+
+            reminder = Reminder()
+            result = await getattr(reminder, method)(bot)
 
         else:
             # Invalid task object. May as well just delete this task.

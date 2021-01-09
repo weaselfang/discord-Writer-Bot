@@ -178,6 +178,8 @@ class WriterBot(AutoShardedBot):
         # Delete the recurring tasks in case they got stuck in processing, and then re-create them.
         db.delete('tasks', {'object': 'goal', 'type': 'reset'})
         db.insert('tasks', {'object': 'goal', 'time': 0, 'type': 'reset', 'recurring': 1, 'runeveryseconds': 900})
+        db.delete('tasks', {'object': 'reminder', 'type': 'send'})
+        db.insert('tasks', {'object': 'reminder', 'time': 0, 'type': 'send', 'recurring': 1, 'runeveryseconds': 30})
 
     @staticmethod
     def load_prefix(bot, message):
@@ -229,5 +231,5 @@ class WriterBot(AutoShardedBot):
         lib.debug('['+str(self.shard_id)+'] Running task cleanup...')
 
         hour_ago = int(time.time()) - (60*60)
-        db.execute('DELETE FROM tasks WHERE processing = 1 AND time < %s', [hour_ago])
+        db.execute('DELETE FROM tasks WHERE processing = 1 AND time < %s AND time <> 0', [hour_ago])
 
