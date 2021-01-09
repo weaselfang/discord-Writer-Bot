@@ -71,7 +71,7 @@ class Remind(commands.Cog, CommandWrapper):
         regex = {
             'in': '^in\s(\d+)\ssend\s(.*?)(\sto\s\<\#([0-9]+)\>)?$',
             'at': '^at\s(\d{4}|\d{2}\:\d{2})(\son\s(.*?))?\ssend\s(.*?)(\sto\s\<\#([0-9]+)\>)?$',
-            'every': '^every\s(day|hour|week|month)\s(from|at)\s(\d{4}|\d{2}\:\d{2})\ssend\s(.*?)(\sto\s\<\#([0-9]+)\>)?$'
+            'every': '^every\s(day|hour|week)\s(from|at)\s(\d{4}|\d{2}\:\d{2})\ssend\s(.*?)(\sto\s\<\#([0-9]+)\>)?$'
         }
         if re.search(regex['in'], cmd, re.IGNORECASE):
 
