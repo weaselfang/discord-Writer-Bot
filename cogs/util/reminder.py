@@ -77,6 +77,10 @@ class Remind(commands.Cog, CommandWrapper):
 
             matches = re.findall(regex['in'], cmd, re.IGNORECASE)
 
+            # Make sure the time in mins is valid.
+            if int(matches[0][0]) <= 0:
+                return await context.send(lib.get_string('remind:err:time', user.get_guild()))
+
             remind_time = now + (60 * int(matches[0][0]))
 
             message = matches[0][1]

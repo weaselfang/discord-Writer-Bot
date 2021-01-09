@@ -467,6 +467,7 @@
     "remind:err:format": "Invalid reminder format. Please run `help remind` to check the valid formats.",
     "remind:err:channel": "Invalid channel.",
     "remind:err:date": "Invalid date/time. Please choose a date/time in the future.",
+    "remind:err:time": "Invalid time. Please choose a number of minutes, greater than zero.",
     "remind:err:message": "Reminder message cannot be more than 255 characters long. ({}). (Bear in mind, discord 'Mentions' use more characters than they appear to).",
     "remind:err:interval": "Invalid interval. Should be either `hour`, `day`, `week` or `month`.",
 

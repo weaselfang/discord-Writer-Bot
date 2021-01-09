@@ -93,11 +93,18 @@ class Reminder:
         """
         channel = bot.get_channel(int(self.channel))
         if channel:
-            try:
-                await channel.send(self.message)
-            except Exception:
-                # If the bot doesn't have permissions to post there, we can't do it.
-                pass
+
+            # Note: If this causes slow down problems, if too many are getting sent, may have to re-do this
+            # to get an array of all user ids per guild id and query those together.
+            member = await bot.get_guild(int(self.guild)).fetch_member(int(self.user))
+            if member:
+
+                # Try and send the message to the specified channel.
+                try:
+                    await channel.send(self.message)
+                except Exception:
+                    # If the bot doesn't have permissions to post there, we can't do it.
+                    pass
 
         # Now delete the reminder, or reschedule its next run time if it's an interval one.
         self.delete_or_reschedule()
