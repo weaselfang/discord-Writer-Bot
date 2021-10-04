@@ -1,5 +1,6 @@
 import discord
 from discord.ext import commands
+from structures.guild import Guild
 
 class Ping(commands.Cog):
 
