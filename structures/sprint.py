@@ -12,6 +12,8 @@ class Sprint:
 
     DEFAULT_POST_DELAY = 2 # 2 minutes
 
+    WINNING_POSITION = 1 # When sorting results by wordcount, if there are tied users, we want to give them both position 1 in the sprint
+
     TASKS = {
         'start': 'start',  # This is the task for starting the sprint, when it is scheduled with a start delay
         'end': 'end', # This is the task for ending the writing phase of the sprint and asking for final word counts
@@ -452,18 +454,24 @@ class Sprint:
 
         # Now loop through them again and apply extra XP, depending on their position in the results
         position = 1
+        highest_word_count = 0
 
         for result in results:
 
+            if result['wordcount'] > highest_word_count:
+                highest_word_count = result['wordcount']
             # If the user finished in the top 5 and they weren't the only one sprinting, earn extra XP
+            is_sprint_winner = result['wordcount'] == highest_word_count
             if position <= 5 and len(results) > 1:
 
-                extra_xp = math.ceil(Experience.XP_WIN_SPRINT / position)
+                extra_xp = math.ceil(Experience.XP_WIN_SPRINT / self.WINNING_POSITION if is_sprint_winner else position)
                 result['xp'] += extra_xp
                 await result['user'].add_xp(extra_xp)
 
             # If they actually won the sprint, increase their stat by 1
-            if position == 1:
+            # Since the results are in order, the highest word count will be set first
+            # which means that any subsequent users with the same word count have tied for 1st place
+            if position == 1 or result['wordcount'] == highest_word_count:
                 result['user'].add_stat('sprints_won', 1)
 
             position += 1
