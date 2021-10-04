@@ -3,6 +3,8 @@ import lib
 import discord
 from discord.ext import commands
 from structures.wrapper import CommandWrapper
+from structures.guild import Guild
+
 
 class EightBall(commands.Cog, CommandWrapper):
 
@@ -24,6 +26,8 @@ class EightBall(commands.Cog, CommandWrapper):
 
         Examples: !8ball Should I do some writing?
         """
+        if not Guild(context.guild).is_command_enabled('8ball'):
+            return await context.send(lib.get_string('err:disabled', context.guild.id))
 
         guild_id = context.guild.id
 

@@ -3,6 +3,7 @@ from discord.ext import commands
 from structures.db import Database
 from structures.user import User
 from structures.wrapper import CommandWrapper
+from structures.guild import Guild
 
 class Profile(commands.Cog, CommandWrapper):
 
@@ -16,6 +17,10 @@ class Profile(commands.Cog, CommandWrapper):
         """
         Displays your Writer-Bot profile information and statistics.
         """
+
+        if not Guild(context.guild).is_command_enabled('profile'):
+            return await context.send(lib.get_string('err:disabled', context.guild.id))
+
         user = User(context.message.author.id, context.guild.id, context)
         goals = {
             'daily': user.get_goal_progress('daily')

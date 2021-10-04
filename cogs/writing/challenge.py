@@ -6,6 +6,7 @@ from discord.ext import commands
 from structures.db import Database
 from structures.user import User
 from structures.wrapper import CommandWrapper
+from structures.guild import Guild
 
 class Challenge(commands.Cog, CommandWrapper):
 
@@ -52,6 +53,8 @@ class Challenge(commands.Cog, CommandWrapper):
             !challenge cancel - Cancels your current challenge.
             !challenge done|complete - Completes your current challenge.
         """
+        if not Guild(context.guild).is_command_enabled('challenge'):
+            return await context.send(lib.get_string('err:disabled', context.guild.id))
 
         # Check the arguments are valid
         args = await self.check_arguments(context, flag=flag, flag2=flag2)

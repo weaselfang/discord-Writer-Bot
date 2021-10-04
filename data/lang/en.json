@@ -11,6 +11,7 @@
     "err:yesorno": "Please respond with either `yes` or `no`.",
     "err:commandinvoke": "**Error invoking command**\nThis could be caused by the bot not having all the correct permissions it needs on this server (READ, WRITE, EMBED_LINKS).\nIf you are sure the permissions are correct, please report this error on the Writer-Bot support server.\n\nError code: **{}**",
     "err:notimezone": "You need to set a valid timezone in order to do this. Please see `help mysetting`.",
+    "err:disabled": "The moderators have disabled this command on this server.",
 
     "admin:argument:cmd": "What are you trying to do?",
     "admin:err:argument": "Invalid argument",
@@ -91,11 +92,14 @@
     "reset:argument:confirm": "Are you sure you want to do that? (`yes` or `no`)",
 
     "setting:updated": "updated server setting `{}` to `{}`",
+    "setting:disable": "successfully {}d command `{}`!",
     "setting:argument:setting": "What setting do you want to update?",
     "setting:argument:value": "What value do you want to set for this setting?",
     "setting:none": "No settings found",
     "setting:err:sprint_delay_end": "Value must be a number, greater than 0",
     "setting:err:lang": "There is no language pack for that language. Please choose from the available packs: {}",
+    "setting:err:disable": "Could not enable/disable `{}`, it is not a valid command",
+    "setting:err:disableSelf": "Disabling this command is not supported.",
 
     "mysetting:updated": "updated setting `{}` to: `{}`",
     "mysetting:timezone:help": "Your timezone setting must be a valid TZ Database Name. Please see the following page and choose your timezone: https://kevinnovak.github.io/Time-Zone-Picker/ (It should look something like `Europe/London`)",

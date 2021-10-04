@@ -3,6 +3,7 @@ import lib
 from discord.ext import commands
 from structures.guild import Guild
 from structures.user import User
+from structures.guild import Guild
 
 class XP(commands.Cog):
 
@@ -18,6 +19,8 @@ class XP(commands.Cog):
             !xp - Shows your level/xp
             !xp top - Shows the top 10 users on this server
         """
+        if not Guild(context.guild).is_command_enabled('xp'):
+            return await context.send(lib.get_string('err:disabled', context.guild.id))
 
         guild_id = context.guild.id
         user_id = context.message.author.id

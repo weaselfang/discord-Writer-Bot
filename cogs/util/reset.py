@@ -37,6 +37,8 @@ class Reset(commands.Cog, CommandWrapper):
             !reset xp: Resets your xp/level to 0
             !reset all: Resets your xp/levels, stats, records, goals and challenges
         """
+        if not Guild(context.guild).is_command_enabled('reset'):
+            return await context.send(lib.get_string('err:disabled', context.guild.id))
 
         user = User(context.message.author.id, context.guild.id, context)
 

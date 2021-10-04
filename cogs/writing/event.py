@@ -7,6 +7,7 @@ from structures.project import Project
 from structures.task import Task
 from structures.user import User
 from structures.wrapper import CommandWrapper
+from structures.guild import Guild
 
 from pprint import pprint
 
@@ -47,6 +48,9 @@ class EventCommand(commands.Cog, CommandWrapper):
         event top - Checks the word count leaderboard for the current event
         event info - Checks the information/status of the event
         """
+        if not Guild(context.guild).is_command_enabled('event'):
+            return await context.send(lib.get_string('err:disabled', context.guild.id))
+
         # Check the arguments were all supplied and get a dict list of them and their values, after any prompts
         args = await self.check_arguments(context, cmd=cmd)
         if not args:

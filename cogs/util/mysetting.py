@@ -3,6 +3,7 @@ from datetime import datetime, timezone
 from discord.ext import commands
 from structures.user import User
 from structures.wrapper import CommandWrapper
+from structures.guild import Guild
 
 class MySetting(commands.Cog, CommandWrapper):
 
@@ -37,6 +38,9 @@ class MySetting(commands.Cog, CommandWrapper):
             !mysetting timezone Europe/London
             !mysetting timezone America/Phoenix
         """
+        if not Guild(context.guild).is_command_enabled('mysetting'):
+            return await context.send(lib.get_string('err:disabled', context.guild.id))
+
         user = User(context.message.author.id, context.guild.id, context)
 
         # If we want to list the setting, do that instead.

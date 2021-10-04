@@ -4,6 +4,7 @@ import discord
 from discord.ext import commands
 from structures.user import User
 from structures.wrapper import CommandWrapper
+from structures.guild import Guild
 
 class Ask(commands.Cog, CommandWrapper):
 
@@ -31,6 +32,8 @@ class Ask(commands.Cog, CommandWrapper):
             !ask c(haracter) - Asks you a question about your character
             !ask w(orld) - Asks you a question about your world
         """
+        if not Guild(context.guild).is_command_enabled('ask'):
+            return await context.send(lib.get_string('err:disabled', context.guild.id))
 
         user = User(context.message.author.id, context.guild.id, context)
 

@@ -1,5 +1,6 @@
 import random, lib, discord, json
 from discord.ext import commands
+from structures.guild import Guild
 
 class Reassure(commands.Cog):
 
@@ -14,6 +15,8 @@ class Reassure(commands.Cog):
 
         Examples: !reassure
         """
+        if not Guild(context.guild).is_command_enabled('reassure'):
+            return await context.send(lib.get_string('err:disabled', context.guild.id))
 
         guild_id = context.guild.id
 

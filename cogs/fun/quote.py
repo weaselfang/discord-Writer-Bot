@@ -1,6 +1,7 @@
 import random, lib, discord, json
 from discord.ext import commands
 from pprint import pprint
+from structures.guild import Guild
 
 class Quote(commands.Cog):
 
@@ -15,6 +16,8 @@ class Quote(commands.Cog):
 
         Examples: !quote
         """
+        if not Guild(context.guild).is_command_enabled('quote'):
+            return await context.send(lib.get_string('err:disabled', context.guild.id))
 
         guild_id = context.guild.id
 

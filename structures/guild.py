@@ -15,6 +15,7 @@ class Guild:
         self._id = guild.id
         self._members = [member.id for member in self._guild.members]
         self._settings = None
+        self._disabled = None
 
     def get_id(self):
         return self._id
@@ -65,6 +66,33 @@ class Guild:
         # Otherwise, we want to insert a new one
         else:
             return self.__db.insert('guild_settings', {'guild': self._id, 'setting': setting, 'value': value})
+
+    def __load_disabled(self):
+        raw = self.get_setting('disabled')
+        if raw == None:
+            self._disabled = set()
+        else:
+            self._disabled = set(raw.split(','))
+
+    def disable_enable_command(self, command, disable: bool):
+        """
+        Disable or enable a command.
+        """
+        if self._disabled == None:
+            self.__load_disabled()
+        if disable:
+            self._disabled.add(command)
+        else:
+            self._disabled.discard(command)
+        self.update_setting('disabled', ','.join(self._disabled))
+
+    def is_command_enabled(self, command):
+        """
+        Check is a command is enabled for this server.
+        """
+        if self._disabled == None:
+            self.__load_disabled()
+        return not (command in self._disabled)
 
     def get_top_xp(self):
         """

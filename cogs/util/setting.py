@@ -11,7 +11,7 @@ class Setting(commands.Cog, CommandWrapper):
 
     def __init__(self, bot):
         self.bot = bot
-        self._supported_settings = ['lang', 'sprint_delay_end', 'prefix']
+        self._supported_settings = ['lang', 'sprint_delay_end', 'prefix', 'enable', 'disable']
         self._arguments = [
             {
                 'key': 'setting',
@@ -70,6 +70,14 @@ class Setting(commands.Cog, CommandWrapper):
         if setting == 'lang' and not lib.is_supported_language(value):
             return await context.send(user.get_mention() + ', ' + lib.get_string('setting:err:lang', guild.get_id()).format(', '.join(lib.get_supported_languages())))
 
+        if setting in ['disable', 'enable']:
+            if not (value in self.bot.all_commands):
+                return await context.send(user.get_mention() + ', ' + lib.get_string('setting:err:disable', guild.get_id()).format(value))
+            elif value == 'setting': # Don't allow disabling the `setting` command
+                return await context.send(user.get_mention() + ', ' + lib.get_string('setting:err:disableSelf', guild.get_id()))
+            else:
+                guild.disable_enable_command(value, setting == 'disable')
+                return await context.send(user.get_mention() + ', ' + lib.get_string('setting:disable', guild.get_id()).format(setting, value))
 
         guild.update_setting(setting, value)
         return await context.send(user.get_mention() + ', ' + lib.get_string('setting:updated', guild.get_id()).format(setting, value))

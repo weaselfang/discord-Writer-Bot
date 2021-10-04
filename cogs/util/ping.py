@@ -12,6 +12,9 @@ class Ping(commands.Cog):
         """
         Displays latency between client and bot
         """
+        if not Guild(context.guild).is_command_enabled('ping'):
+            return await context.send(lib.get_string('err:disabled', context.guild.id))
+
         latency = round(self.bot.latency * 1000, 2)
         return await context.send('Pong! ' + str(latency) + 'ms')
 

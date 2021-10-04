@@ -3,6 +3,7 @@ from discord.ext import commands
 from structures.db import Database
 from structures.user import User
 from structures.wrapper import CommandWrapper
+from structures.guild import Guild
 
 class Goal(commands.Cog, CommandWrapper):
 
@@ -35,6 +36,9 @@ class Goal(commands.Cog, CommandWrapper):
             !goal cancel monthly - Deletes your monthly goal
             !goal time daily - Checks how long until your daily goal resets
         """
+        if not Guild(context.guild).is_command_enabled('goal'):
+            return await context.send(lib.get_string('err:disabled', context.guild.id))
+
         user = User(context.message.author.id, context.guild.id, context)
 
         # If no option is sent and we just do `goal` then display a table of all their goals.

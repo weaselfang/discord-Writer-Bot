@@ -2,6 +2,7 @@ import random
 import lib
 import discord
 from discord.ext import commands
+from structures.guild import Guild
 
 class Flip(commands.Cog):
 
@@ -16,6 +17,8 @@ class Flip(commands.Cog):
 
         Examples: !flip
         """
+        if not Guild(context.guild).is_command_enabled('flip'):
+            return await context.send(lib.get_string('err:disabled', context.guild.id))
 
         guild_id = context.guild.id
         rand = random.randrange(2)

@@ -2,6 +2,7 @@ import random
 import lib
 import discord
 from discord.ext import commands
+from structures.guild import Guild
 
 class Roll(commands.Cog):
 
@@ -22,6 +23,8 @@ class Roll(commands.Cog):
             !roll 3d20 - Rolls three 20-sided dice.
             !roll 100d100 - Rolls the maximum, one-hundred 100-sided dice.
         """
+        if not Guild(context.guild).is_command_enabled('roll'):
+            return await context.send(lib.get_string('err:disabled', context.guild.id))
 
         guild_id = context.guild.id
 

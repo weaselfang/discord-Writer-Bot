@@ -1,5 +1,6 @@
 import os, json, lib, discord, datetime, time
 from discord.ext import commands
+from structures.guild import Guild
 from structures.db import Database
 
 class About(commands.Cog):
@@ -16,6 +17,9 @@ class About(commands.Cog):
         Aliases: !info
         Examples: !about
         """
+
+        if not Guild(context.guild).is_command_enabled('info'):
+            return await context.send(lib.get_string('err:disabled', context.guild.id))
 
         now = time.time()
         uptime = int(round(now - self.bot.start_time))

@@ -4,6 +4,7 @@ from discord.ext import commands
 from structures.reminder import Reminder
 from structures.user import User
 from structures.wrapper import CommandWrapper
+from structures.guild import Guild
 
 class Remind(commands.Cog, CommandWrapper):
 
@@ -35,6 +36,9 @@ class Remind(commands.Cog, CommandWrapper):
         @param context:
         @return:
         """
+        if not Guild(context.guild).is_command_enabled('remind'):
+            return await context.send(lib.get_string('err:disabled', context.guild.id))
+
         user = User(context.message.author.id, context.guild.id, context)
 
         # Does the user have a timezone setup? If not, can't do anything.

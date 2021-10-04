@@ -4,6 +4,7 @@ from discord.ext import commands
 from structures.generator import NameGenerator
 from structures.project import Project
 from structures.sprint import Sprint
+from structures.guild import Guild
 from structures.task import Task
 from structures.user import User
 from structures.wrapper import CommandWrapper
@@ -73,6 +74,9 @@ class SprintCommand(commands.Cog, CommandWrapper):
         e.g. If you joined with 1000 words, and during the sprint you wrote another 500 words, the final word count you should declare would be 1500
         """
         user = User(context.message.author.id, context.guild.id, context)
+
+        if not Guild(context.guild).is_command_enabled('sprint'):
+            return await context.send(lib.get_string('err:disabled', context.guild.id))
 
         # Check the arguments are valid
         args = await self.check_arguments(context, cmd=cmd, opt1=opt1, opt2=opt2, opt3=opt3)

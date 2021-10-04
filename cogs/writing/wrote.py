@@ -5,6 +5,7 @@ from structures.event import Event
 from structures.project import Project
 from structures.user import User
 from structures.wrapper import CommandWrapper
+from structures.guild import Guild
 
 class Wrote(commands.Cog, CommandWrapper):
 
@@ -35,8 +36,10 @@ class Wrote(commands.Cog, CommandWrapper):
             !wrote 250 - Adds 250 words to your total words written
             !wrote 200 sword - Adds 200 words to your Project with the shortname "sword". (See: Projects for more info).
         """
-
         user = User(context.message.author.id, context.guild.id, context)
+
+        if not Guild(context.guild).is_command_enabled('wrote'):
+            return await context.send(lib.get_string('err:disabled', context.guild.id))
 
         # Check the arguments are valid
         args = await self.check_arguments(context, amount=amount, shortname=shortname)
