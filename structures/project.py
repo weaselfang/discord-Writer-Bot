@@ -96,6 +96,18 @@ class Project:
             {'genre': 'crime', 'emote': ':oncoming_police_car:'},
             {'genre': 'erotic', 'emote': ':hot_pepper:'},
             {'genre': 'comic', 'emote': ':art:'},
+            {'genre': 'action', 'emote': ':gun:'},
+            {'genre': 'drama', 'emote': ':performing arts:'},
+            {'genre': 'fanfic', 'emote': ':art:'},
+            {'genre': 'sfw', 'emote': ':green_circle:'},
+            {'genre': 'nsfw', 'emote': ':red_circle:'},
+            {'genre': 'seminsfw', 'emote': ':orange_circle:'},
+            {'genre': 'literary', 'emote': ':notebook_with_decorative_cover:'},
+            {'genre': 'adventure', 'emote': ':mountain_snow:'},
+            {'genre': 'suspense', 'emote': ':worried:'},
+            {'genre': 'ya', 'emote': ':adult:'},
+            {'genre': 'kids', 'emote': ':children_crossing:'},
+
         ]
 
         for genre in emotes:
@@ -236,9 +248,10 @@ class Project:
         link = self.get_link()
         words = str("{:,}".format(self.get_words()))
 
-        embed = discord.Embed(title=title, color=discord.Color.green(), description=description, url=link)
-
-        print(self.get_image())
+        if link is not None:
+            embed = discord.Embed(title=title, color=discord.Color.green(), description=description, url=link)
+        else:
+            embed = discord.Embed(title=title, color=discord.Color.green(), description=description)
 
         if self.get_image() is not None:
             embed.set_thumbnail(url=self.get_image())
