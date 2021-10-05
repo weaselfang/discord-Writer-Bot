@@ -464,7 +464,7 @@ class Sprint:
             is_sprint_winner = result['wordcount'] == highest_word_count
             if position <= 5 and len(results) > 1:
 
-                extra_xp = math.ceil(Experience.XP_WIN_SPRINT / self.WINNING_POSITION if is_sprint_winner else position)
+                extra_xp = math.ceil(Experience.XP_WIN_SPRINT / (self.WINNING_POSITION if is_sprint_winner else position))
                 result['xp'] += extra_xp
                 await result['user'].add_xp(extra_xp)
 
