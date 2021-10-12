@@ -698,8 +698,9 @@ class EventCommand(commands.Cog, CommandWrapper):
         :param context:
         :return:
         """
+        user = User(context.message.author.id, context.guild.id, context=context, bot=self.bot)
         permissions = context.message.author.permissions_in(context.message.channel)
-        if permissions.manage_messages is not True:
+        if permissions.manage_messages is not True and not user.is_owner():
             raise commands.errors.MissingPermissions(['manage_messages'])
 
 def setup(bot):
