@@ -423,6 +423,7 @@
     "generate:type:land": "fantasy land names",
     "generate:type:book": "book titles",
     "generate:type:book_fantasy": "fantasy book titles",
+    "generate:type:book_horror": "horror book titles",
     "generate:type:book_sf": "sci-fi book titles",
     "generate:type:book_hp": "Harry Potter book titles",
     "generate:type:book_mystery": "mystery book titles",
