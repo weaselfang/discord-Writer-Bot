@@ -66,6 +66,8 @@ class WriterBot(AutoShardedBot):
         elif isinstance(error, commands.errors.MissingPermissions):
             user = User(context.message.author.id, context.guild.id, context)
             return await context.send(user.get_mention() + ', ' + str(error))
+        elif isinstance(error, commands.errors.CommandInvokeError) and 'Broken pipe' in str(error):
+            return await context.send('Sorry, I am currently experiencing network issues, due to high volume of users. Please wait a moment and see if the command completes. If not, try again.')
         elif isinstance(error, commands.errors.CommandInvokeError):
             code = lib.error('CommandInvokeError in command `{}`: {}'.format(context.command, str(error)))
             lib.error(traceback.format_exception(type(error), error, error.__traceback__), code)
