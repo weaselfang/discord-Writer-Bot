@@ -221,7 +221,7 @@ class WriterBot(AutoShardedBot):
         try:
             await Task.execute_all(self)
         except Exception as e:
-            lib.out('Exception: ' + str(e))
+            lib.error( traceback.format_exception(type(e), e, e.__traceback__), 'TASK' )
 
     @tasks.loop(hours=CLEANUP_TASK_LOOP)
     async def cleanup_tasks(self):
