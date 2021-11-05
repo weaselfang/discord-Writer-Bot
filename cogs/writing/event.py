@@ -502,7 +502,7 @@ class EventCommand(commands.Cog, CommandWrapper):
 
         # Is the event scheduled to start, but has not yet started?
         if not event.is_running() and event.is_scheduled():
-            left = lib.secs_to_days(event.get_start_time() - now)
+            left = lib.format_secs_to_days(event.get_start_time() - now)
             return await context.send(user.get_mention() + ', ' + lib.get_string('event:timetostart', user.get_guild()).format(left))
 
         # If the event is not running and it is NOT scheduled, then we don't know what time it will start.
@@ -511,7 +511,7 @@ class EventCommand(commands.Cog, CommandWrapper):
 
         # At this point, the event must be running. If it is scheduled, then we can get the time left from the end time. Otherwise, we don't know.
         elif event.is_scheduled():
-            left = lib.secs_to_days(event.get_end_time() - now)
+            left = lib.format_secs_to_days(event.get_end_time() - now)
             return await context.send(user.get_mention() + ', ' + lib.get_string('event:timeleft', user.get_guild()).format(left))
 
         else:
