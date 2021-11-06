@@ -6,6 +6,9 @@ from datetime import datetime, timezone, timedelta, time
 from dateutil import relativedelta
 from structures.db import Database
 
+# Discord has a maximum of 2000 characters per message
+MAXIMUM_MESSAGE_CHARACTER_LIMIT = 2000
+
 def get(file,as_object=True):
     """
     Load a JSON file and return the contents as an object or array
@@ -48,6 +51,17 @@ def is_supported_language(lang):
     :return:
     """
     return lang in get_supported_languages()
+
+def get_character_count(str):
+    """
+    Get the character count for a given string
+    :param str:
+    :return:
+    """
+
+    if not str:
+        return 0
+    return len(str)
 
 def get_string(str, guild_id):
     """
