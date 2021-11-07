@@ -139,6 +139,11 @@ class Goal(commands.Cog, CommandWrapper):
                 current_wordcount = progress['current']
                 goal_wordcount = progress['goal']
                 words_remaining = goal_wordcount - current_wordcount
+
+                # If someone has already met their goal, we don't want to calculate how many words they have left
+                if words_remaining <= 0:
+                    words_remaining = 0
+
                 text = lib.get_string('goal:yourgoal', user.get_guild()).format(type_string, goal['goal']) +  "\n"
                 text += lib.get_string('goal:status', user.get_guild()).format(progress['percent'], type_string, current_wordcount, goal_wordcount) + "\n"
                 text += lib.get_string('goal:timeleft', user.get_guild()).format(lib.format_secs_to_days(seconds_left), type_string)
@@ -147,8 +152,12 @@ class Goal(commands.Cog, CommandWrapper):
                     # if someone has, for instance, 3 days 2 hours, count that as 4 days (remainder of today + 3 days)
                     hours = left['hours']
                     days = days + (1 if hours > 0 else 0)
-                    average_wordcount_needed = math.ceil(words_remaining / days)
-                    text += "\n" + lib.get_string('goal:rate', user.get_guild()).format(average_wordcount_needed, type_string)
+                    if words_remaining > 0:
+                        average_wordcount_needed = math.ceil(words_remaining / days)
+                        text += "\n" + lib.get_string('goal:rate', user.get_guild()).format(average_wordcount_needed, type_string)
+                if words_remaining == 0:
+                    # They met their goal!
+                    text += "\n" + lib.get_string('goal:met:noxp', user.get_guild()).format(type_string, goal_wordcount)
             else:
                 text = None
 

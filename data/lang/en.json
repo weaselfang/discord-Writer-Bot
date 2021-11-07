@@ -148,6 +148,7 @@
     "goal:history": "Your recent {} goal history",
     "goal:updated": "Manually updated {} goal to: **{}**.",
     "goal:rate": "If you write {} words a day, you will meet your {} goal!",
+    "goal:met:noxp": "You have met your {} goal of {} words!",
 
     "help:about": "Info and Stats about the bot.",
     "help:ask": "Asks you questions about your story.",
