@@ -1,6 +1,7 @@
 import json, math, os, pytz, random, string
 from collections import namedtuple
 from pprint import pprint
+from functools import lru_cache
 from os import path
 from datetime import datetime, timezone, timedelta, time
 from dateutil import relativedelta
@@ -16,7 +17,6 @@ def get(file,as_object=True):
     @param as_object: Return as an object (can be accessed via object.property). Otherwise object['property'].
     @return object
     """
-
     with open(file, 'r') as data:
         if as_object:
             return json.load(data, object_hook=lambda d: namedtuple('X', d.keys())(*d.values()))
@@ -70,8 +70,13 @@ def get_string(str, guild_id):
     @param guild_id: The guild ID
     @return string: The full string in the correct language
     """
-
     lang = get_lang(guild_id)
+    return _get_translated_string(str, lang)
+
+@lru_cache(maxsize=1024)
+def _get_translated_string(str, lang):
+    out("Fetching translation for " + str + " in " + lang)
+
     path = f'./data/lang/{lang}.json'
     strings = get(path, False)
     return strings[str] if str in strings else f'[[{str}]]'
