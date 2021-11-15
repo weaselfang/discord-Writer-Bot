@@ -153,7 +153,7 @@ class Goal(commands.Cog, CommandWrapper):
                     hours = left['hours']
                     days = days + (1 if hours > 0 else 0)
                     if words_remaining > 0:
-                        average_wordcount_needed = math.ceil(words_remaining / days)
+                        average_wordcount_needed = math.ceil(words_remaining / (1 if days == 0 else days))
                         text += "\n" + lib.get_string('goal:rate', user.get_guild()).format(average_wordcount_needed, type_string)
                 if words_remaining == 0:
                     # They met their goal!
