@@ -531,8 +531,14 @@ class Sprint:
         message = message + ', '.join(notify)
         await self.say(message, context, bot)
 
+        # If there are only non-wc sprinters, complete immediately.
+        if self.is_declaration_finished():
+            await self.complete(context=context, bot=bot)
+            return
+
         # Convert the minutes to seconds
         delay = int(delay) * 60
+
         task_time = int(time.time()) + delay
 
         # Schedule the cron task
