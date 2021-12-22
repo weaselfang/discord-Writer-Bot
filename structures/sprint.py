@@ -1,4 +1,4 @@
-import lib, math, numpy, time
+import lib, math, numpy, time, threading
 from operator import itemgetter
 from structures.db import Database
 from structures.event import Event
@@ -28,6 +28,7 @@ class Sprint:
         self.__db = Database.instance()
         self.bot = bot
 
+        self.lock = threading.Lock()
         # Initialise the variables to match the database record
         self._id = None
         self._guild = guild_id

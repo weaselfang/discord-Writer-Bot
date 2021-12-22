@@ -340,6 +340,7 @@ class SprintCommand(commands.Cog, CommandWrapper):
             if response is False or response.content.lower() in ('n', 'no'):
                 return await context.send(user.get_mention() + ', ' + lib.get_string('sprint:declareagain', user.get_guild()))
 
+        sprint.lock.acquire()
         # Update the user's sprint record
         arg = {col: new_amount}
         sprint.update_user(user.get_id(), **arg)
@@ -356,7 +357,10 @@ class SprintCommand(commands.Cog, CommandWrapper):
         # Is the sprint now over and has everyone declared?
         if sprint.is_finished() and sprint.is_declaration_finished():
             Task.cancel('sprint', sprint.get_id())
+            sprint.lock.release()
             await sprint.complete(context)
+        else:
+            sprint.lock.release()
 
     async def run_status(self, context):
         """
@@ -632,7 +636,7 @@ class SprintCommand(commands.Cog, CommandWrapper):
         sprint = Sprint(user.get_guild())
 
         # Check if sprint is finished but not marked as completed, in which case we can mark it as complete
-        if sprint.is_finished():
+        if sprint.is_finished() and sprint.is_declaration_finished():
             # Mark the sprint as complete
             await sprint.complete()
             # Reload the sprint object, as now there shouldn't be a pending one
