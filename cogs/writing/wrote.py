@@ -1,34 +1,40 @@
-import discord, lib
+import lib
 from discord.ext import commands
+from discord_slash import SlashContext, cog_ext
+from discord_slash.model import SlashCommandOptionType
+from discord_slash.utils.manage_commands import create_option
 from structures.db import Database
 from structures.event import Event
 from structures.project import Project
 from structures.user import User
-from structures.wrapper import CommandWrapper
 from structures.guild import Guild
 
-class Wrote(commands.Cog, CommandWrapper):
+class Wrote(commands.Cog):
 
     def __init__(self, bot):
         self.bot = bot
         self.__db = Database.instance()
-        self._arguments = [
-            {
-                'key': 'amount',
-                'prompt': 'wrote:argument:amount',
-                'required': True,
-                'type': int,
-                'error': 'wrote:err:type'
-            },
-            {
-                'key': 'shortname',
-                'required': False
-            }
-        ]
 
-    @commands.command(name="wrote")
-    @commands.guild_only()
-    async def wrote(self, context, amount=None, shortname=None):
+    @cog_ext.cog_slash(
+        name="wrote",
+        description="Adds to your total words written statistic",
+        options=[
+            create_option(
+                name="amount",
+                description="How many words did you write?",
+                option_type=SlashCommandOptionType.INTEGER,
+                required=True
+            ),
+            create_option(
+                name="project",
+                description="Shortname of the project you're writing in",
+                option_type=SlashCommandOptionType.STRING,
+                required=False
+            )
+        ],
+        connector={"project": "shortname"}
+    )
+    async def wrote(self, context: SlashContext, amount: int, shortname: str = None):
         """
         Adds to your total words written statistic.
 
@@ -36,18 +42,13 @@ class Wrote(commands.Cog, CommandWrapper):
             !wrote 250 - Adds 250 words to your total words written
             !wrote 200 sword - Adds 200 words to your Project with the shortname "sword". (See: Projects for more info).
         """
-        user = User(context.message.author.id, context.guild.id, context)
+        await context.defer()
 
         if not Guild(context.guild).is_command_enabled('wrote'):
             return await context.send(lib.get_string('err:disabled', context.guild.id))
 
-        # Check the arguments are valid
-        args = await self.check_arguments(context, amount=amount, shortname=shortname)
-        if not args:
-            return
+        user = User(context.author_id, context.guild_id, context)
 
-        amount = args['amount']
-        shortname = args['shortname']
         message = None
 
         # If they were writing in a Project, update its word count.
@@ -85,6 +86,18 @@ class Wrote(commands.Cog, CommandWrapper):
             message = lib.get_string('wrote:added', user.get_guild()).format(str(amount), str(total))
 
         await context.send(user.get_mention() + ', ' + message)
+
+    @commands.command(name="wrote")
+    @commands.guild_only()
+    async def old(self, context):
+        """
+        Adds to your total words written statistic.
+
+        Examples:
+            !wrote 250 - Adds 250 words to your total words written
+            !wrote 200 sword - Adds 200 words to your Project with the shortname "sword". (See: Projects for more info).
+        """
+        await context.send(lib.get_string('err:slash', context.guild.id))
 
 
 def setup(bot):
