@@ -1,4 +1,5 @@
-import discord, lib, random
+import random
+import lib
 from discord.ext import commands
 from discord_slash import cog_ext, SlashContext
 from discord_slash.model import SlashCommandOptionType
@@ -18,7 +19,7 @@ class EightBall(commands.Cog):
         @param context:
         @return:
         """
-        await context.send('This command has been migrated to use a Slash Command. More info: <https://github.com/cwarwicker/discord-Writer-Bot/wiki/Slash-Commands>')
+        await context.send(lib.get_string('err:slash', context.guild.id))
 
     @cog_ext.cog_slash(name="8ball",
                        description="Ask the magic 8ball a question",
@@ -32,27 +33,21 @@ class EightBall(commands.Cog):
         """
         Ask the magic 8-ball a question. Your question will be routed to a text-processing AI in order to properly analyze the content of the question and provide a meaningful answer.
 
-        Examples: !8ball Should I do some writing?
+        Examples: /8ball Should I do some writing?
         """
         await context.defer()
 
         if not Guild(context.guild).is_command_enabled('8ball'):
-            return await context.send(lib.get_string('err:disabled', context.guild.id))
+            return await context.send(lib.get_string('err:disabled', context.guild_id))
 
-        guild_id = context.guild.id
-
-        # Create array of possible answers to choose from
-        answers = []
-
-        # Load all 21 possible answers into an array to pick from
-        for i in range(21):
-            answers.append( lib.get_string('8ball:'+format(i), guild_id) )
+        guild_id = context.guild_id
 
         # Pick a random answer
-        answer = random.choice(answers)
+        i: int = random.randrange(21)
+        answer: str = lib.get_string(f"8ball:{i}", guild_id)
 
         # Send the message
-        await context.send( context.author.mention + ', ' + lib.get_string('8ball:yourquestion', guild_id).format(question) + format(answer) )
+        await context.send(context.author.mention + ', ' + lib.get_string('8ball:yourquestion', guild_id).format(question) + answer)
 
 
 def setup(bot):
