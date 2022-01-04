@@ -1,6 +1,8 @@
 import discord, lib, random
 from discord.ext import commands
 from discord_slash import cog_ext, SlashContext
+from discord_slash.model import SlashCommandOptionType
+from discord_slash.utils.manage_commands import create_option
 from structures.guild import Guild
 
 class EightBall(commands.Cog):
@@ -18,9 +20,15 @@ class EightBall(commands.Cog):
         """
         await context.send('This command has been migrated to use a Slash Command. More info: <https://github.com/cwarwicker/discord-Writer-Bot/wiki/Slash-Commands>')
 
-    @commands.guild_only()
-    @cog_ext.cog_slash(name="8ball", description="Ask the magic 8ball a question")
-    async def _8ball(self, context: SlashContext, question):
+    @cog_ext.cog_slash(name="8ball",
+                       description="Ask the magic 8ball a question",
+                       options=[
+                           create_option(name="question",
+                                         description="What is your question for the magic 8ball?",
+                                         option_type=SlashCommandOptionType.STRING,
+                                         required=True)
+                       ])
+    async def _8ball(self, context: SlashContext, question: str):
         """
         Ask the magic 8-ball a question. Your question will be routed to a text-processing AI in order to properly analyze the content of the question and provide a meaningful answer.
 
