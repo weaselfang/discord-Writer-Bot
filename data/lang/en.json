@@ -42,6 +42,7 @@
     "8ball:18": ":red_circle: Outlook not so good",
     "8ball:19": ":red_circle: Very doubtful",
     "8ball:20": ":red_circle: Absolutely not",
+    "8ball:yourquestion": "In answer to your question \"{}\"\n",
 
     "profile:lvlxp": "Lvl (XP)" ,
     "profile:words": "Words Written" ,

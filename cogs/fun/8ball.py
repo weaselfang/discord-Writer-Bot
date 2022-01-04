@@ -50,7 +50,7 @@ class EightBall(commands.Cog):
         answer = random.choice(answers)
 
         # Send the message
-        await context.send( context.author.mention + ', ' + format(answer) )
+        await context.send( context.author.mention + ', ' + lib.get_string('8ball:yourquestion', guild_id).format(question) + format(answer) )
 
 
 def setup(bot):
