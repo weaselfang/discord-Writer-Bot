@@ -14,11 +14,6 @@ class EightBall(commands.Cog):
     @commands.command(name="8ball")
     @commands.guild_only()
     async def old(self, context):
-        """
-        Old command.
-        @param context:
-        @return:
-        """
         await context.send(lib.get_string('err:slash', context.guild.id))
 
     @cog_ext.cog_slash(name="8ball",
@@ -31,12 +26,17 @@ class EightBall(commands.Cog):
                        ])
     async def _8ball(self, context: SlashContext, question: str):
         """
-        Ask the magic 8-ball a question. Your question will be routed to a text-processing AI in order to properly analyze the content of the question and provide a meaningful answer.
+        Ask the magic 8-ball a question.
 
-        Examples: /8ball Should I do some writing?
+        :param SlashContext context: SlashContext object
+        :param str question: The question the user is asking
+        :rtype: void
         """
+
+        # Send "bot is thinking" message, to avoid failed commands if latency is high.
         await context.defer()
 
+        # Make sure the guild has this command enabled.
         if not Guild(context.guild).is_command_enabled('8ball'):
             return await context.send(lib.get_string('err:disabled', context.guild_id))
 
