@@ -1,14 +1,24 @@
-import lib, math, numpy, time, threading
+import math
+import time
 from operator import itemgetter
+from threading import Lock
+from typing import List, ClassVar
+
+import lib
 from structures.db import Database
 from structures.event import Event
 from structures.guild import Guild
 from structures.project import Project
 from structures.task import Task
-from structures.xp import Experience
 from structures.user import User
+from structures.xp import Experience
+
 
 class Sprint:
+    # dict of [guild_id, Sprint]
+    # for sharing objects between command invocations etc
+    _instances: ClassVar[dict] = {}
+    _instances_lock: ClassVar[Lock] = Lock()
 
     DEFAULT_POST_DELAY = 2 # 2 minutes
 
@@ -22,13 +32,39 @@ class Sprint:
 
     SPRINT_TYPE_NO_WORDCOUNT = "no_wordcount"
 
+    def __new__(cls, *args, **kwargs):
+        """
+        Pre-constructor to share objects between command calls etc.
+        For more info about __new__() see
+        https://dev.to/delta456/python-init-is-not-a-constructor-12on
+        """
+        # make sure only one thread is messing with the instance dict at a time
+        cls._instances_lock.acquire()
+        guild_id = args[0]
+        # try to get existing instance for this guild
+        # (use `.get()` instead of `[]` to get `None` as a default instead of throwing `KeyError`)
+        existing = cls._instances.get(guild_id, None)
+        if existing is not None:
+            # we have an existing object, return it (and release the lock)
+            cls._instances_lock.release()
+            return existing
+        else:
+            # we don't have an existing instance, so create a new object
+            obj = super().__new__(cls)
+            # store it in the dict
+            cls._instances[guild_id] = obj
+            # release the lock...
+            cls._instances_lock.release()
+            # ...and return the new object!
+            return obj
+
     def __init__(self, guild_id, bot=None):
 
         # Initialise the database instance and bot (if supplied)
         self.__db = Database.instance()
         self.bot = bot
 
-        self.lock = threading.Lock()
+        self.lock = Lock()
         # Initialise the variables to match the database record
         self._id = None
         self._guild = guild_id
@@ -44,13 +80,6 @@ class Sprint:
         # Try and load the sprint on this server, if there is one running.
         if self._guild is not None:
             self.load()
-
-    def is_valid(self):
-        """
-        Check if the Task object is valid
-        :return:
-        """
-        return self._id is not None
 
     def set_id(self, id):
         """
@@ -165,7 +194,7 @@ class Sprint:
         user_ids = self.get_users()
         return user_id in user_ids
 
-    def is_declaration_finished(self):
+    def is_declaration_finished(self) -> bool:
         """
         Check if everyone sprinting has declared their final word counts
         :return: bool
@@ -190,19 +219,19 @@ class Sprint:
         users = self.__db.get_all('sprint_users', {'sprint': self._id})
         return [int(row['user']) for row in users]
 
-    def get_notify_users(self):
+    def get_notify_users(self) -> List[int]:
         """
         Get an array of all the users who want to be notified about new sprints on this server
         :return:
         """
         notify = self.__db.get_all('user_settings', {'guild': self._guild, 'setting': 'sprint_notify', 'value': 1})
-        notify_ids = [int(row['user']) for row in notify]
+        notify_ids: List[int] = [int(row['user']) for row in notify]
 
         # We don't need to notify users who are already in the sprint, so we can exclude those
-        users_ids = self.get_users()
-        return numpy.setdiff1d(notify_ids, users_ids).tolist()
+        users_ids: List[int] = self.get_users()
+        return list(filter(lambda user_id: user_id not in users_ids, notify_ids))
 
-    def get_notifications(self, users):
+    def get_notifications(self, users: List[int]) -> List[str]:
         """
         Get an array of user mentions for each person in the supplied array of userids
         :return:
@@ -284,6 +313,12 @@ class Sprint:
         if user.get_id() == self._createdby:
             user.add_stat('sprints_started', -1)
 
+        # remove this sprint from the instance dict
+        self.__class__._instances_lock.acquire()
+        self.__class__._instances.pop(context.guild.id)
+        self.__class__._instances_lock.release()
+
+
     async def post_start(self, context=None, bot=None):
         """
         Post the sprint start message
@@ -299,7 +334,7 @@ class Sprint:
         # Add mentions for any user who wants to be notified
         notify = self.get_notify_users()
         if notify:
-            message += lib.get_string('sprint:notifications', guild_id).format( ', '.join(self.get_notifications(notify)) )
+            message += lib.get_string('sprint:notifications', guild_id).format(', '.join(self.get_notifications(notify)))
 
         return await self.say(message, context, bot)
 
@@ -506,6 +541,12 @@ class Sprint:
         # Send the message, either via the context or directly to the channel
         await self.say(message, context, bot)
 
+        # remove this sprint from the instance dict
+        self.__class__._instances_lock.acquire()
+        self.__class__._instances.pop(context.guild.id)
+        self.__class__._instances_lock.release()
+
+
     async def end(self, context=None, bot=None):
         """
         Mark the 'end' time of the sprint as 0 in the database and ask for final word counts
@@ -545,7 +586,7 @@ class Sprint:
         # Schedule the cron task
         Task.schedule(self.TASKS['complete'], task_time, 'sprint', self._id)
 
-    async def say(self, message, context=None, bot=None):
+    async def say(self, message: str, context=None, bot=None):
         """
         Send a message to the channel, via context if supplied, or direct otherwise
         :param message:
@@ -639,7 +680,7 @@ class Sprint:
         """
         self.__db.update('sprints', {'end_reference': end_reference}, {'id': self._id})
 
-
+    @staticmethod
     async def purge_notifications(context):
         """
         Purge notify notifications of any users who aren't in ths server any more.
@@ -652,23 +693,18 @@ class Sprint:
         if notify_ids:
 
             members = await context.guild.query_members(limit=100, cache=False, user_ids=notify_ids)
-
-            # Create a sub method to find a user in the members list by their id
-            def find_member(id):
-                for m in members:
-                    if m.id == id:
-                        return m
-                return None
+            member_ids: List[int] = list(map(lambda m: m.id, members))
 
             # Go through the users who want notifications and delete any which aren't in the server now.
             for row in notify:
-                if not find_member(int(row['user'])):
+                if not int(row['user']) in member_ids:
                     db.delete('user_settings', {'id': row['id']})
                     count += 1
 
         return count
 
-    def calculate_wpm(amount, seconds):
+    @staticmethod
+    def calculate_wpm(amount: int, seconds: int) -> float:
         """
         Calculate words per minute, from words written and seconds
         :param amount:
@@ -678,7 +714,8 @@ class Sprint:
         mins = seconds / 60
         return round(amount / mins, 1)
 
-    def create(guild, channel, start, end, end_reference, length, createdby, created):
+    @staticmethod
+    def create(guild, channel, start, end, end_reference, length, createdby, created: int):
 
         # Insert the record into the database
         db = Database.instance()
@@ -687,6 +724,7 @@ class Sprint:
         # Return the new object using this guild id
         return Sprint(guild)
 
+    @staticmethod
     def get(id):
         """
         Get a sprint object by its id
