@@ -620,12 +620,15 @@ class Sprint:
         if not self._task_prechecks(bot):
             return True
 
+        self.lock.acquire()
         # If the task has already completed fully due to all the users submitting their word counts, we don't need to do this.
         if self.is_complete():
+            self.lock.release()
             return True
 
         # Otherwise, run the complete method. This will in turn schedule the complete task.
         await self.complete(bot=bot)
+        self.lock.release()
         return True
 
     def update_end_reference(self, end_reference):
