@@ -34,6 +34,8 @@ class EightBall(commands.Cog):
 
         Examples: !8ball Should I do some writing?
         """
+        await context.defer()
+
         if not Guild(context.guild).is_command_enabled('8ball'):
             return await context.send(lib.get_string('err:disabled', context.guild.id))
 
