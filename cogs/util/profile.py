@@ -49,7 +49,7 @@ class Profile(commands.Cog, CommandWrapper):
             'yearly_goals_completed': user.get_stat('yearly_goals_completed'),
         }
 
-        embed = discord.Embed(title=user.get_name(), color=3066993, description=user.get_name())
+        embed = discord.Embed(title=lib.get_string('profile:your', user.get_guild()), color=3066993, description=lib.get_string('profile:your', user.get_guild()))
 
         embed.add_field(name=lib.get_string('profile:lvlxp', user.get_guild()), value=profile['lvlxp'], inline=True)
         embed.add_field(name=lib.get_string('profile:words', user.get_guild()), value=profile['words'], inline=True)
