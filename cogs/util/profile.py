@@ -18,7 +18,7 @@ class Profile(commands.Cog, CommandWrapper):
         await context.send(lib.get_string('err:slash', context.guild.id))
 
     @cog_ext.cog_slash(name="profile",
-                       description="Display your Writer-Bot profile information and statistics", guild_ids=[503593039541960704])
+                       description="Display your Writer-Bot profile information and statistics")
     async def profile(self, context: SlashContext):
         """
         Displays your Writer-Bot profile information and statistics.
