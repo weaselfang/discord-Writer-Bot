@@ -18,7 +18,7 @@ class Profile(commands.Cog, CommandWrapper):
         await context.send(lib.get_string('err:slash', context.guild.id))
 
     @cog_ext.cog_slash(name="profile",
-                       description="Display your Writer-Bot profile information and statistics")
+                       description="Display your Writer-Bot profile information and statistics", guild_ids=[503593039541960704])
     async def profile(self, context: SlashContext):
         """
         Displays your Writer-Bot profile information and statistics.
@@ -49,7 +49,7 @@ class Profile(commands.Cog, CommandWrapper):
             'yearly_goals_completed': user.get_stat('yearly_goals_completed'),
         }
 
-        embed = discord.Embed(title=user.get_name(), color=3066993)
+        embed = discord.Embed(title=user.get_name(), color=3066993, description=user.get_name())
 
         embed.add_field(name=lib.get_string('profile:lvlxp', user.get_guild()), value=profile['lvlxp'], inline=True)
         embed.add_field(name=lib.get_string('profile:words', user.get_guild()), value=profile['words'], inline=True)

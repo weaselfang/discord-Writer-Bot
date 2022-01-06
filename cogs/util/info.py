@@ -17,7 +17,7 @@ class Info(commands.Cog):
 
     @cog_ext.cog_slash(name="info",
                        description="Display information and statistics about the bot")
-    async def info(self, context):
+    async def info(self, context: SlashContext):
         """
         Displays information and statistics about the bot.
 
@@ -39,7 +39,7 @@ class Info(commands.Cog):
         sprints = self.__db.get('sprints', {'completed': 0}, ['COUNT(id) as cnt'])['cnt']
 
         # Begin the embedded message
-        embed = discord.Embed(title=lib.get_string('info:bot', guild_id), color=3447003)
+        embed = discord.Embed(title=lib.get_string('info:bot', guild_id), color=3447003, description=lib.get_string('info:bot', guild_id))
         embed.add_field(name=lib.get_string('info:version', guild_id), value=config.version, inline=True)
         embed.add_field(name=lib.get_string('info:uptime', guild_id), value=str(datetime.timedelta(seconds=uptime)), inline=True)
         embed.add_field(name=lib.get_string('info:owner', guild_id), value=str(self.bot.app_info.owner), inline=True)
