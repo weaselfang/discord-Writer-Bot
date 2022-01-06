@@ -1,29 +1,40 @@
-import os, json, lib, discord, datetime, time
+import datetime, discord, json, lib, os, time
 from discord.ext import commands
+from discord_slash import cog_ext, SlashContext
 from structures.guild import Guild
 from structures.db import Database
 
-class About(commands.Cog):
+class Info(commands.Cog):
 
     def __init__(self, bot):
         self.bot = bot
         self.__db = Database.instance()
 
-    @commands.command(aliases=['info'])
+    @commands.command(name="info")
     @commands.guild_only()
+    async def old(self, context):
+        await context.send(lib.get_string('err:slash', context.guild.id))
+
+    @cog_ext.cog_slash(name="info",
+                       description="Display information and statistics about the bot")
     async def about(self, context):
         """
         Displays information and statistics about the bot.
-        Aliases: !info
-        Examples: !about
+
+        :param SlashContext context: SlashContext object
+        :rtype: void
         """
 
+        # Send "bot is thinking" message, to avoid failed commands if latency is high.
+        await context.defer()
+
+        # Make sure the guild has this command enabled.
         if not Guild(context.guild).is_command_enabled('info'):
-            return await context.send(lib.get_string('err:disabled', context.guild.id))
+            return await context.send(lib.get_string('err:disabled', context.guild_id))
 
         now = time.time()
         uptime = int(round(now - self.bot.start_time))
-        guild_id = context.guild.id
+        guild_id = context.guild_id
         config = self.bot.config
         sprints = self.__db.get('sprints', {'completed': 0}, ['COUNT(id) as cnt'])['cnt']
 
@@ -36,7 +47,6 @@ class About(commands.Cog):
         # Statistics
         stats = []
         stats.append('• ' + lib.get_string('info:servers', guild_id) + ': ' + format(len(self.bot.guilds)))
-        stats.append('• ' + lib.get_string('info:members', guild_id) + ': ' + format(self.count_members(self.bot.guilds)))
         stats.append('• ' + lib.get_string('info:sprints', guild_id) + ': ' + str(sprints))
         stats.append('• ' + lib.get_string('info:helpserver', guild_id) + ': ' + config.help_server)
         stats = '\n'.join(stats)
@@ -60,18 +70,5 @@ class About(commands.Cog):
         # Send the message
         await context.send(embed=embed)
 
-
-    def count_members(self, guilds):
-        """
-        Count all the members in every server this bot is in.
-        @param guilds: Passed from bot.guilds
-        @return int Total member count
-        """
-        total = 0
-        for guild in guilds:
-            total += len(guild.members)
-        return total
-
-
 def setup(bot):
-    bot.add_cog(About(bot))
+    bot.add_cog(Info(bot))
