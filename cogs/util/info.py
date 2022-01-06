@@ -17,7 +17,7 @@ class Info(commands.Cog):
 
     @cog_ext.cog_slash(name="info",
                        description="Display information and statistics about the bot")
-    async def about(self, context):
+    async def info(self, context):
         """
         Displays information and statistics about the bot.
 

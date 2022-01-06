@@ -27,11 +27,10 @@ class Roll(commands.Cog):
     async def roll(self, context, dice: str ='1d6'):
         """
         Rolls a dice between 1-6, or 1 and a specified number (max 100). Can also roll multiple dice at once (max 100) and get the total.
-        Examples:
-            !roll - Rolls one 6-sided die.
-            !roll 1d8 - Rolls one 8-sided die.
-            !roll 3d20 - Rolls three 20-sided dice.
-            !roll 100d100 - Rolls the maximum, one-hundred 100-sided dice.
+
+        :param SlashContext context: SlashContext object
+        :param str dice: The dice to roll, e.g. 1d6, 2d10, etc...
+        :rtype: void
         """
 
         # Send "bot is thinking" message, to avoid failed commands if latency is high.
