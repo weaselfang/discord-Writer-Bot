@@ -42,15 +42,15 @@ class Admin(commands.Cog, CommandWrapper):
         # Make sure it is me.
         user = User(context.author.id, context.guild_id, context=context, bot=self.bot)
         if not user.is_owner():
-            raise commands.errors.MissingPermissions(['Bot owner'])
+            return await context.send('Invalid permissions. Must be bot owner.')
 
         if command == 'status':
             await self.run_status(context, value)
 
-        await context.send("OK", hidden=True)
+        await context.send("Done", hidden=True)
 
 
-    async def run_status(self, context, value):
+    async def run_status(self, context: SlashContext, value: str):
         """
         Change the bot's status
 
