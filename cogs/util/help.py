@@ -22,6 +22,9 @@ class Help(commands.Cog, CommandWrapper):
 
         config = lib.get('./settings.json')
 
+        # Send a temporary extra message about the slash commands.
+        await context.send('Please Note: Commands are currently being migrated to /slash commands. Some of this information may be out of date. For more info, please see: <https://github.com/cwarwicker/discord-Writer-Bot/wiki/Slash-Commands>')
+
         if command == "help":
 
             url = config.src + '/wiki/Commands' if config.src != "" else None
@@ -45,7 +48,6 @@ class Help(commands.Cog, CommandWrapper):
             help_embed.add_field(name='`roll`', value=lib.get_string('help:roll', user.get_guild()), inline=True)
             help_embed.add_field(name='`sprint`', value=lib.get_string('help:sprint', user.get_guild()), inline=True)
             help_embed.add_field(name='`wrote`', value=lib.get_string('help:wrote', user.get_guild()), inline=True)
-            help_embed.add_field(name='`xp`', value=lib.get_string('help:xp', user.get_guild()), inline=True)
             help_embed.add_field(name='`help`', value=lib.get_string('help:help', user.get_guild()), inline=True)
 
             return await context.send(embed=help_embed)
@@ -240,13 +242,6 @@ class Help(commands.Cog, CommandWrapper):
             wrote_embed.add_field(name='`wrote 500 sword`', value=lib.get_string('help:wroteprojectSub', user.get_guild()), inline=True)
 
             await context.send(content=None, embed=wrote_embed)
-
-        elif command == 'xp':
-            xp_embed=discord.Embed(title='Help with `xp` command.', color=3897943)
-            xp_embed.add_field(name='`xp`', value=lib.get_string('help:xpSub', user.get_guild()), inline=True)
-            xp_embed.add_field(name='`xp top`', value=lib.get_string('help:xpTopSub', user.get_guild()), inline=True)
-            
-            return await context.send(embed=xp_embed)
 
         elif command == 'remind':
             xp_embed = discord.Embed(title='Help with `remind` command.', color=3897943)
