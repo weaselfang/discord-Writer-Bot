@@ -1,5 +1,8 @@
 import discord, lib
 from discord.ext import commands
+from discord_slash import cog_ext, SlashContext
+from discord_slash.model import SlashCommandOptionType
+from discord_slash.utils.manage_commands import create_option, create_choice
 from structures.guild import Guild
 from structures.user import User
 from structures.wrapper import CommandWrapper
@@ -8,75 +11,67 @@ class Reset(commands.Cog, CommandWrapper):
 
     def __init__(self, bot):
         self.bot = bot
-        self._supported_resets = ['pb', 'wc', 'xp', 'projects', 'all']
-        self._arguments = [
-            {
-                'key': 'what',
-                'prompt': 'reset:argument:what',
-                'required': True,
-                'check': lambda content: content in self._supported_resets,
-                'error': 'reset:invalid'
-            },
-            {
-                'key': 'confirm',
-                'prompt': 'reset:argument:confirm',
-                'required': True,
-                'check': lambda content : content in ('y', 'yes', 'n', 'no')
-            }
-        ]
 
     @commands.command(name="reset")
     @commands.guild_only()
-    async def reset(self, context, what=None, confirm=None):
+    async def old(self, context):
+        await context.send(lib.get_string('err:slash', context.guild.id))
+
+    @cog_ext.cog_slash(name="reset",
+                       description="Reset some or all of your user statistics",
+                       options=[
+                           create_option(name="statistic",
+                                         description="What statistic do you want to reset? (This cannot be undone afterwards)",
+                                         option_type=SlashCommandOptionType.STRING,
+                                         required=True,
+                                         choices=[
+                                             create_choice(name="WPM Personal Best", value="pb"),
+                                             create_choice(name="Words Written", value="wc"),
+                                             create_choice(name="Experience", value="xp"),
+                                             create_choice(name="Projects", value="projects"),
+                                             create_choice(name="Everything", value="all")
+                                         ])
+                       ])
+    async def reset(self, context: SlashContext, statistic: str = None):
         """
         Lets you reset your statistics/records.
 
-        Examples:
-            !reset pb: Resets your wpm personal best
-            !reset wc: Resets your total word count
-            !reset xp: Resets your xp/level to 0
-            !reset all: Resets your xp/levels, stats, records, goals and challenges
+        :param SlashContext context: SlashContext object
+        :param str statistic: The statistic to reset
+        :rtype: void
         """
-        if not Guild(context.guild).is_command_enabled('reset'):
-            return await context.send(lib.get_string('err:disabled', context.guild.id))
+        # Send "bot is thinking" message, to avoid failed commands if latency is high.
+        await context.defer(hidden=True)
 
-        user = User(context.message.author.id, context.guild.id, context)
+        # No need to check if command is disabled, as this is a user-specific command.
 
-        # Check the arguments are valid
-        args = await self.check_arguments(context, what=what, confirm=confirm)
-        if not args:
-            return
+        # Get the user.
+        user = User(context.author.id, context.guild_id, context)
 
-        what = args['what'].lower()
-        confirm = args['confirm'].lower()
-
-        # Make sure they confirmed it, otherwise just stop and display an OK message
-        if confirm not in ('y', 'yes'):
-            output = 'OK'
-            return await context.send(user.get_mention() + ', ' + output)
+        output = ''
 
         # Personal Best
-        if what == 'pb':
+        if statistic == 'pb':
             user.update_record('wpm', 0)
             output = lib.get_string('reset:pb', user.get_guild())
 
-        elif what == 'wc':
+        elif statistic == 'wc':
             user.update_stat('total_words_written', 0)
             output = lib.get_string('reset:wc', user.get_guild())
 
-        elif what == 'xp':
+        elif statistic == 'xp':
             await user.update_xp(0)
             output = lib.get_string('reset:xp', user.get_guild())
 
-        elif what == 'projects':
+        elif statistic == 'projects':
             user.reset_projects()
             output = lib.get_string('reset:projects', user.get_guild())
 
-        elif what == 'all':
+        elif statistic == 'all':
             user.reset()
             output = lib.get_string('reset:done', user.get_guild())
 
-        return await context.send( user.get_mention() + ', ' + output )
+        return await context.send( output, hidden=True )
 
 
 def setup(bot):
