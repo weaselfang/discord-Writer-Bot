@@ -27,38 +27,6 @@ class User:
     def get_guild(self):
         return self._guild
 
-    def is_guild_member(self):
-        """
-        Try to work out if the user is still a member of the guild, otherwise they might have left
-        :return bool:
-        """
-        if self.__context is not None and self.__context.guild is not None and self.__context.guild.get_member(self._id) is not None:
-            return True
-        elif self.__bot is not None and self._guild is not None and self.__bot.get_guild(self._guild).get_member(self._id) is not None:
-            return True
-        else:
-            return False
-
-    def get_name(self):
-        """
-        Try and get the user's name on the guild, or just return it if it was passed through.
-        :return:
-        """
-
-        # If the name is empty but we have the context, we can get it from the guild member list
-        if self._name is None and self.__context is not None and self.__context.guild is not None:
-            guild_member = self.__context.guild.get_member( self._id )
-            if guild_member is not None:
-                self._name = guild_member.display_name
-
-        # If the name is empty but we have the bot object, we can get it from the guilds and then the guild member list
-        elif self._name is None and self.__bot is not None and self._guild is not None:
-            guild_member = self.__bot.get_guild(self._guild).get_member(self._id)
-            if guild_member is not None:
-                self._name = guild_member.display_name
-
-        return self._name
-
     def get_mention(self):
         return f'<@{self._id}>'
 
