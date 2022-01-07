@@ -77,7 +77,7 @@ class Task:
             from structures.sprint import Sprint
 
             sprint = Sprint.get(self.object_id)
-            if sprint.exists():
+            if sprint.is_valid():
                 result = await getattr(sprint, method)(bot)
             else:
                 # If the sprint doesn't exist, then we can just delete this task.
