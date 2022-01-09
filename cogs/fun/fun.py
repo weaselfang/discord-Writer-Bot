@@ -48,14 +48,17 @@ class Fun(commands.Cog):
         """
         return await context.send(lib.get_string('err:slash', context.guild.id))
 
-    @cog_ext.cog_slash(name="8ball",
-                       description="Ask the magic 8ball a question",
-                       options=[
-                           create_option(name="question",
-                                         description="What is your question for the magic 8ball?",
-                                         option_type=SlashCommandOptionType.STRING,
-                                         required=True)
-                       ])
+    @cog_ext.cog_slash(
+        name="8ball",
+        description="Ask the magic 8ball a question",
+        options=[
+            create_option(
+                name="question",
+                description="What is your question for the magic 8ball?",
+                option_type=SlashCommandOptionType.STRING,
+                required=True
+            )
+    ])
     async def _8ball(self, context: SlashContext, question: str):
         """
         Ask the magic 8-ball a question.
@@ -82,7 +85,10 @@ class Fun(commands.Cog):
         await context.send(
             context.author.mention + ', ' + lib.get_string('8ball:yourquestion', guild_id).format(question) + answer)
 
-    @cog_ext.cog_slash(name="flip", description="Flip a coin")
+    @cog_ext.cog_slash(
+        name="flip",
+        description="Flip a coin"
+    )
     async def flip(self, context: SlashContext):
         """
         Flips a coin.
@@ -107,7 +113,10 @@ class Fun(commands.Cog):
         # Send the message.
         await context.send(lib.get_string('flip:' + side, guild_id))
 
-    @cog_ext.cog_slash(name="quote", description="Generate a random motivational quote")
+    @cog_ext.cog_slash(
+        name="quote",
+        description="Generate a random motivational quote"
+    )
     async def quote(self, context: SlashContext):
         """
         A random motivational quote to inspire you.
@@ -135,14 +144,17 @@ class Fun(commands.Cog):
         # Send the message
         await context.send(format(quote['quote'] + ' - *' + quote['name'] + '*'))
 
-    @cog_ext.cog_slash(name="reassure",
-                       description="Send a random reassuring message to a user or yourself",
-                       options=[
-                           create_option(name="who",
-                                         description="Who do you want to reassure?",
-                                         option_type=SlashCommandOptionType.STRING,
-                                         required=False)
-                       ])
+    @cog_ext.cog_slash(
+        name="reassure",
+        description="Send a random reassuring message to a user or yourself",
+        options=[
+            create_option(
+                name="who",
+                description="Who do you want to reassure?",
+                option_type=SlashCommandOptionType.STRING,
+                required=False
+            )
+    ])
     async def reassure(self, context: SlashContext, who: str = None):
         """
         Reassures you that everything will be okay.
@@ -181,11 +193,16 @@ class Fun(commands.Cog):
         # Send the message.
         await context.send(mention + ', ' + format(quote))
 
-    @cog_ext.cog_slash(name="roll", description="Roll some dice", options=[
-        create_option(name="dice",
-                      description="What dice do you want to roll? Format: {number}d{sides}, e.g. 1d20, 2d8, etc... Default: 1d6",
-                      option_type=SlashCommandOptionType.STRING,
-                      required=False)
+    @cog_ext.cog_slash(
+        name="roll",
+        description="Roll some dice",
+        options=[
+            create_option(
+                name="dice",
+                description="What dice do you want to roll? Format: {number}d{sides}, e.g. 1d20, 2d8, etc... Default: 1d6",
+                option_type=SlashCommandOptionType.STRING,
+                required=False
+            )
     ])
     async def roll(self, context, dice: str = '1d6'):
         """
