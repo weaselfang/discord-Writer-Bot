@@ -15,31 +15,8 @@ class Fun(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
-    @commands.command(name="8ball")
+    @commands.command(name="8ball", aliases=["flip", "quote", "reassure", "roll"])
     @commands.guild_only()
-    async def old_8ball(self, context):
-        return await self.old(context)
-
-    @commands.command(name="flip")
-    @commands.guild_only()
-    async def old_flip(self, context):
-        return await self.old(context)
-
-    @commands.command(name="quote")
-    @commands.guild_only()
-    async def old_quote(self, context):
-        return await self.old(context)
-
-    @commands.command(name="reassure")
-    @commands.guild_only()
-    async def old_reassure(self, context):
-        return await self.old(context)
-
-    @commands.command(name="roll")
-    @commands.guild_only()
-    async def old_roll(self, context):
-        return await self.old(context)
-
     async def old(self, context):
         """
         Migrated command, so just display a message for now.
@@ -151,7 +128,7 @@ class Fun(commands.Cog):
             create_option(
                 name="who",
                 description="Who do you want to reassure?",
-                option_type=SlashCommandOptionType.STRING,
+                option_type=SlashCommandOptionType.USER,
                 required=False
             )
     ])
@@ -176,12 +153,7 @@ class Fun(commands.Cog):
         if who is None:
             mention = context.author.mention
         else:
-
-            # We must now mention the user directly, as we can't easily lookup users any more.
-            if not who.startswith('<@!') or not who.endswith('>'):
-                return await context.send(lib.get_string('reassure:nomention', guild_id))
-
-            mention = who
+            mention = who.mention
 
         # Load the JSON file with the quotes.
         messages = lib.get_asset('reassure', guild_id)
