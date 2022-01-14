@@ -232,6 +232,7 @@ class Help(commands.Cog, CommandWrapper):
             sprint_embed.add_field(name='`sprint notify`', value=lib.get_string('help:sprintNotifySub', user.get_guild()), inline=True)
             sprint_embed.add_field(name='`sprint forget`', value=lib.get_string('help:sprintForgetSub', user.get_guild()), inline=True)
             sprint_embed.add_field(name='`sprint status`', value=lib.get_string('help:sprintStatusSub', user.get_guild()), inline=True)
+            sprint_embed.add_field(name='`sprint purge`', value=lib.get_string('help:sprintPurgeSub', user.get_guild()), inline=True)
             sprint_embed.set_footer(text=lib.get_string('help:sprintFooter', user.get_guild()))
 
             return await context.send(embed=sprint_embed)
