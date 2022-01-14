@@ -23,10 +23,6 @@ class NameGenerator:
         if amount is None or amount < 1:
             amount = self.DEFAULT_AMOUNT
 
-        # # If the type is 'idea' or 'prompt', change the amount to 1, as that will take up too much space.
-        # if self.type == 'idea' or self.type == 'prompt':
-        #     amount = 1
-
         asset_file = 'gen_' + self.type
         source = lib.get_asset(asset_file, self.context.guild.id)
         retry_attempts = 0

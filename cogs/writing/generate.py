@@ -22,7 +22,9 @@ SUPPORTED_TYPES = {
     'book_rom': 'Romance Book',
     'book_sf': 'Sci-Fi Book',
     'prompt': 'Prompt',
-    'face': 'Face'
+    'face': 'Face',
+    'question_char': 'Character-building question',
+    'question_world': 'World-building question',
 }
 
 class Generate(commands.Cog, CommandWrapper):
@@ -69,24 +71,16 @@ class Generate(commands.Cog, CommandWrapper):
         Random generator for various things (character names, place names, land names, book titles, story ideas, prompts).
         Define the type of item you wanted generated and then optionally, the amount of items to generate.
 
-        Examples:
-            !generate char - generates 10 character names
-            !generate place 20 - generates 20 fantasy place names
-            !generate land - generates 10 fantasy land/world names
-            !generate book - generates 10 general fiction book titles
-            !generate book_fantasy - generates 10 fantasy book titles
-            !generate book_sf - generates 10 sci-fi book titles
-            !generate book_horror - generates 10 horror book titles
-            !generate book_rom - generates 10 romance/erotic book titles
-            !generate book_mystery - generates 10 mystery book titles
-            !generate book_hp - generates 10 Harry Potter book title
-            !generate idea - generates a random story idea
-            !generate prompt - generates a story prompt
-            !generate face - generates a random person's face
+        :param SlashContext context: Slash command context
+        :param str type: Type of generation to do
+        :param int amount: Amount of items to get
+        :param bool hidden: Should the response be hidden to other users
+        :rtype void:
         """
-        # send the ACK message in case of delays
+        # Send "bot is thinking" message, to avoid failed commands if latency is high.
         await context.defer(hidden=hidden)
 
+        # Make sure the guild has this command enabled.
         if not Guild(context.guild).is_command_enabled('generate'):
             return await context.send(lib.get_string('err:disabled', context.guild.id))
 

@@ -436,6 +436,8 @@
     "generate:type:book_rom": "romance/erotic book titles",
     "generate:type:idea": "story ideas",
     "generate:type:prompt": "prompts",
+    "generate:type:question_char": "character-building questions",
+    "generate:type:question_world": "world-building questions",
 
     "sprint:argument:cmd": "What are you trying to do with the sprint command? `start`, `cancel`, `join`, etc...?",
     "sprint:cancelled": "**Sprint has been cancelled**: ",
