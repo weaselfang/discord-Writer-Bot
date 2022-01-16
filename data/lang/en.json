@@ -177,7 +177,7 @@
     "help:askCharSub": "Asks a question about your characters.",
     "help:askWorldSub": "Asks a question about your world.",
     "help:askFooter": "`ask char` can also be run as `ask c`. `ask world` can also be run as `ask w`.",
-    
+
     "help:challengeSub": "Generates a totally random writing challenge.",
     "help:challengeEasySub": "Generates a totally random writing challenge at 5 wpm. 20xp for completion.",
     "help:challengeNormalSub": "Generates a totally random writing challenge at 10 wpm. 40xp for completion.",
@@ -190,9 +190,9 @@
     "help:challengeCancelSub": "Cancels your current challenge.",
     "help:challengeCompleteSub": "Completes your current challenge.",
     "help:challengeFooter": "WPM = Words Per Minute",
-    
+
     "help:8ballSub":"Ask a question to an 8ball.",
-    
+
     "help:eventCreateSub": "Create an event called 'My Event Title'.",
     "help:eventRenameSub": "Rename event to 'My New Event Title'.",
     "help:eventDescSub": "Set the description of the event  to 'This is the description'.",
@@ -208,9 +208,9 @@
     "help:eventTopSub": "Checks the word count leaderboard for the current event. If no number is specified, defaults to 10 users.",
     "help:eventInfoSub": "Checks the info/status of the event.",
     "help:eventFooter": "`event create`, `event rename`, `event description`, `event image`, `event delete`, `event start`, and `event end` all required the MANAGE_MESSAGES permission.",
-    
+
     "help:flipSub": "Flips a coin.",
-    
+
     "help:generateCharSub": "Generates 10 character names.",
     "help:generatePlaceSub": "Generates 10 fantasy place names.",
     "help:generateBookSub": "Generates 10 general fiction book titles.",
@@ -238,7 +238,7 @@
     "help:mysettingTzSub": "Sets your timezone. (America/New_York can be changed to your desired timezone.)",
     "help:mysettingUrlSub": "https://kevinnovak.github.io/Time-Zone-Picker/",
     "help:mysetting:footer": "For the timezone setting, make sure the value you specify is a valid TZ name from this page: https://kevinnovak.github.io/Time-Zone-Picker/",
-    
+
     "help:pingSub": "Displays the amount of latency between the bot and the client.",
 
     "help:profileSub": "Displays your Writer Bot profile and statistics.",
@@ -266,7 +266,7 @@
     "help:resetXpSub": "Resets your xp/level to 0.",
     "help:reset:projects": "Deletes all of your projects.",
     "help:resetAllSub": "Resets your xp/level, stats, records, goals, challenges and projects.",
-    
+
     "help:rollSub": "Rolls on 6-sided die.",
     "help:roll8Sub": "Rolls one 8-sided die.(8 can be changed out for your desired number. Max is 100.",
     "help:roll3d20Sub": "Rolls three 20-sided dice. (3 can be changed out for you desired number, max is 100. 20 can be changed out for you desired number.)",
@@ -439,11 +439,10 @@
     "generate:type:question_char": "character-building questions",
     "generate:type:question_world": "world-building questions",
 
-    "sprint:argument:cmd": "What are you trying to do with the sprint command? `start`, `cancel`, `join`, etc...?",
     "sprint:cancelled": "**Sprint has been cancelled**: ",
     "sprint:scheduled": "**A new sprint has been scheduled**\nSprint will start in approx {} minutes and will run for {} minute(s). Use `sprint join <wordcount>` to join this sprint.",
     "sprint:started": "**Sprint has started**\nGet writing, you have {} minute(s).\n",
-    "sprint:notified": "You will be notified of any new sprints which are scheduled. Run `sprint forget` to no longer be notified.",
+    "sprint:notified": "You will be notified of any new sprints which are scheduled. Run `/sprint notify` with the `Do not notify` choice to no longer be notified.",
     "sprint:forgot": "You will no longer be notified of any new sprints which are scheduled.",
     "sprint:startsin": "Sprint begins in {} minutes, {} seconds.",
     "sprint:timeleft": "{} minutes, {} seconds remaining.",
@@ -468,20 +467,19 @@
     "sprint:end": "**Time is up**\nPens down. Use `sprint wc <amount>` to submit your final word counts, you have {} minute(s).\n",
     "sprint:project": "You are now sprinting in your project **{}**.",
     "sprint:stats": "Sprint Statistics",
-    "sprint:wpm:sure": "Did you really mean to submit {} words? That would be {} wpm. `yes` or `no`. **Note:** You can change the max wpm value before you receive this warning, by running `mysetting maxwpm <value>`",
+    "sprint:wpm:redeclare": "Did you really mean to submit {} words? That would be {} wpm. If you did, please increase the threshold of this limit by running `/mysetting maxwpm <wpm>` and redeclare your word count.",
     "sprint:declareagain": "Declaration cancelled. Please declare your word count again.",
     "sprint:purged": "Purged {} old users from sprint notifications",
     "sprint:purged:none": "No users to purge from sprint notifications",
 
-    "sprint:err:cmd": "Invalid sprint command... Run `help sprint` for more information on the sprint command.",
     "sprint:err:alreadyexists": "There is already a sprint running on this server. Please wait until it has finished before creating a new one.",
     "sprint:err:noexists": "There is no active sprint on this server. Maybe you should start one? `sprint start`",
     "sprint:err:cannotcancel": "Only the sprint creator or the server moderators can cancel this sprint",
     "sprint:err:cannotend": "Only the sprint creator or the server moderators can end this sprint",
+    "sprint:err:purgeperms": "Only moderators can purge users from sprint notifications!",
     "sprint:err:unknown": "",
-    "sprint:err:for:unknown": "Sorry, I don't understand that - the correct format should be: `sprint for 20 in 5` or `sprint for 30 now`",
-    "sprint:err:for:at": "Sorry, I don't understand that - the correct format should be: `sprint for 20 at .15`",
-    "sprint:err:in:unknown": "Sorry, I don't understand that - the correct format should be: `sprint in 20 for 5` or `sprint in 30`",
+    "sprint:err:for:at": "Sorry, I don't understand that - the correct format should be: `/sprint for length:20 at:15`",
+    "sprint:err:for:exclusive": "`at` and `in` are mutually exclusive options; you can't use both of them in the same command!",
     "sprint:err:notjoined": "You are not taking part in a sprint at the moment",
     "sprint:err:notstarted": "Sprint has not started yet",
     "sprint:err:amount": "Word count must be a valid number",

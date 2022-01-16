@@ -269,9 +269,10 @@ class Sprint:
         Cancel the sprint and notify the users who were taking part
         :return:
         """
+        author_id = context.author_id if hasattr(context, "author_id") else context.message.author.id
 
         # Load current user
-        user = User(context.message.author.id, context.guild.id, context)
+        user = User(author_id, context.guild.id, context)
 
         # Delete sprints and sprint_users records
         self.__db.delete('sprint_users', {'sprint': self._id})
@@ -636,7 +637,7 @@ class Sprint:
         """
         self.__db.update('sprints', {'end_reference': end_reference}, {'id': self._id})
 
-
+    @staticmethod
     async def purge_notifications(context):
         """
         Purge notify notifications of any users who aren't in ths server any more.
@@ -665,7 +666,8 @@ class Sprint:
 
         return count
 
-    def calculate_wpm(amount, seconds):
+    @staticmethod
+    def calculate_wpm(amount: int, seconds: int) -> float:
         """
         Calculate words per minute, from words written and seconds
         :param amount:
