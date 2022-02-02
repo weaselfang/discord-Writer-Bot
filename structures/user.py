@@ -1,6 +1,5 @@
 import lib, math, time
 from structures.db import Database
-from structures.project import Project
 from structures.reminder import Reminder
 from structures.xp import Experience
 
@@ -406,33 +405,6 @@ class User:
             return self.__db.update('user_goals', {'current': amount}, {'id': user_goal['id']})
         else:
             return False
-
-    def get_project(self, shortname):
-        """
-        Try and retrieve a project for this user, with the given shortname
-        :param shortname:
-        :return:
-        """
-        return Project.get(self._id, shortname)
-
-    def get_projects(self, filter_by = None, filter = None):
-        """
-        Get all of the user's projects
-        @param filter_by:
-        @param filter:
-        @return:
-        """
-        return Project.all(self._id, filter_by, filter)
-
-
-    def create_project(self, shortname, title):
-        """
-        Create a new project
-        :param shortname:
-        :param title:
-        :return:
-        """
-        return Project.create(self._id, shortname, title)
 
     async def say(self, message):
         """

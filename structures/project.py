@@ -1,13 +1,45 @@
-import discord, lib, time
+from typing import Optional, Dict, List
+from discord import Color, Embed
+from discord_slash.context import InteractionContext
+import time
+import lib
 from structures.db import Database
 
+
 class Project:
+    @classmethod
+    def get(cls, user: int, shortname: str) -> Optional['Project']:
+        """Try to get a project with a given shortname, for a given user"""
+        record = Database.instance().get('projects', {'user': user, 'shortname': shortname})
+        if record is None:
+            return None
+        return Project(record['id'])
 
-    def __init__(self, id):
+    @classmethod
+    def all(cls, user: int) -> List['Project']:
+        """Get all projects for a user"""
+        records = Database.instance().get_all(
+            table='projects',
+            where={'user': user},
+            fields=['id'],
+            sort=['name', 'shortname', 'words']
+        )
 
+        projects = []
+        for record in records:
+            projects.append(Project(record['id']))
+
+        return projects
+
+    @classmethod
+    def create(cls, user: int, shortname: str, name: str):
+        """Create a new project"""
+        Database.instance().insert('projects', {'user': user, 'shortname': shortname, 'name': name})
+
+    def __init__(self, project_id):
         self.__db = Database.instance()
 
-        record = self.__db.get('projects', {'id': id})
+        record = self.__db.get('projects', {'id': project_id})
         if record:
             self._id = record['id']
             self._user = record['user']
@@ -24,143 +56,53 @@ class Project:
     def get_id(self):
         return self._id
 
-    def is_complete(self):
-        return self._completed > 0
-
-    def get_user(self):
-        return self._user
-
-    def get_name(self):
-        return self._name
-
-    def get_title(self):
-        return self.get_name()
-
-    def get_shortname(self):
+    @property
+    def shortname(self) -> str:
         return self._shortname
 
-    def get_words(self):
-        return self._words
+    @property
+    def name(self) -> str:
+        return self._name
 
-    def get_status(self):
-        return self._status
-
-    def get_genre(self):
-        return self._genre
-
-    def get_description(self):
-        return self._description
-
-    def get_link(self):
-        return self._link if self._link != '' else None
-
-    def get_image(self):
-        return self._image if self._image != '' else None
-
-    def get_status_emote(self):
-        """
-        Given the project's status, get the corresponding emote to display
-        @return:
-        """
-
-        emotes = [
-            {'status': 'planning', 'emote': ':thinking:'},
-            {'status': 'progress', 'emote': ':writing_hand:'},
-            {'status': 'editing', 'emote': ':pencil:'},
-            {'status': 'published', 'emote': ':notebook_with_decorative_cover:'},
-            {'status': 'finished', 'emote': ':white_check_mark:'},
-            {'status': 'abandoned', 'emote': ':wastebasket:'},
-        ]
-
-        for status in emotes:
-            if status['status'] == self._status:
-                return status['emote']
-        return ''
-
-    def get_genre_emote(self):
-        """
-        Given the project's genre, get the corresponding emote to display
-        @return:
-        """
-
-        emotes = [
-            {'genre': 'fantasy', 'emote': ':man_mage:'},
-            {'genre': 'scifi', 'emote': ':ringed_planet:'},
-            {'genre': 'romance', 'emote': ':heart:'},
-            {'genre': 'horror', 'emote': ':skull:'},
-            {'genre': 'fiction', 'emote': ':blue_book:'},
-            {'genre': 'nonfiction', 'emote': ':bookmark:'},
-            {'genre': 'short', 'emote': ':shorts:'},
-            {'genre': 'mystery', 'emote': ':detective:'},
-            {'genre': 'thriller', 'emote': ':scream:'},
-            {'genre': 'crime', 'emote': ':oncoming_police_car:'},
-            {'genre': 'erotic', 'emote': ':hot_pepper:'},
-            {'genre': 'comic', 'emote': ':art:'},
-            {'genre': 'action', 'emote': ':gun:'},
-            {'genre': 'drama', 'emote': ':performing_arts:'},
-            {'genre': 'fanfic', 'emote': ':art:'},
-            {'genre': 'sfw', 'emote': ':green_circle:'},
-            {'genre': 'nsfw', 'emote': ':red_circle:'},
-            {'genre': 'seminsfw', 'emote': ':orange_circle:'},
-            {'genre': 'literary', 'emote': ':notebook_with_decorative_cover:'},
-            {'genre': 'adventure', 'emote': ':mountain_snow:'},
-            {'genre': 'suspense', 'emote': ':worried:'},
-            {'genre': 'ya', 'emote': ':adult:'},
-            {'genre': 'kids', 'emote': ':children_crossing:'},
-
-        ]
-
-        for genre in emotes:
-            if genre['genre'] == self._genre:
-                return genre['emote']
-        return ''
-
-    def delete(self):
-        """
-        Delete the project
-        :return:
-        """
-        return self.__db.delete('projects', {'id': self._id})
-
-    def add_words(self, amount):
-        """
-        Add words to the word count
-        :param amount:
-        :return:
-        """
-        self._words += int(amount)
-        return self.__db.update('projects', {'words': self._words}, {'id': self._id})
-
-    def update(self, amount):
-        """
-        Update the word count of the project
-        :param amount:
-        :return:
-        """
-        self._words = amount
-        return self.__db.update('projects', {'words': amount}, {'id': self._id})
-
-    def rename(self, shortname, name):
+    def rename(self, shortname: str, name: str):
         """
         Rename a project
-        :param shortname:
-        :param name:
-        :return:
+        :param str shortname: new shortname
+        :param str name: new title
         """
         self._shortname = shortname
         self._name = name
-        return self.__db.update('projects', {'shortname': shortname, 'name': name}, {'id': self._id})
+        self.__db.update('projects', {'shortname': shortname, 'name': name}, {'id': self._id})
 
-    def set_image(self, img):
+    @property
+    def words(self) -> int:
+        return self._words
+
+    @words.setter
+    def words(self, amount: int):
+        """Update the word count of the project"""
+        self._words = amount
+        self.__db.update('projects', {'words': amount}, {'id': self._id})
+
+    @property
+    def description(self) -> str:
+        return self._description
+
+    @description.setter
+    def description(self, description: str):
         """
-        Set the project's image.
-        @param img:
+        Set the project's description.
+        @param description:
         @return:
         """
-        return self.__db.update('projects', {'image': img}, {'id': self._id})
+        self.__db.update('projects', {'description': description}, {'id': self._id})
 
+    @property
+    def status(self) -> str:
+        return self._status
 
-    def set_status(self, status):
+    @status.setter
+    def status(self, status: str):
         """
         Set the project's status.
         @param status:
@@ -168,99 +110,176 @@ class Project:
         """
         params = {'status': status}
 
-        # If we are marking it as finished or published and it's not been marked as completed before, add xp.
+        # If we are marking it as finished/published and it's not been marked as completed before,
+        # add xp.
         if (status == 'finished' or status == 'published') and not self.is_complete():
-
             # Mark the project as completed.
             params['completed'] = int(time.time())
 
-        return self.__db.update('projects', params, {'id': self._id})
+        self.__db.update('projects', params, {'id': self._id})
 
-    def set_link(self, link):
-        """
-        Set the project's link.
-        @param link:
-        @return:
-        """
-        return self.__db.update('projects', {'link': link}, {'id': self._id})
+    # status : emote
+    STATUS_EMOTES: Dict[str, str] = {
+        'planning': ':thinking:',
+        'progress': ':writing_hand:',
+        'editing': ':pencil:',
+        'published': ':notebook_with_decorative_cover',
+        'finished': ':white_check_mark:',
+        'abandoned': ':wastebasket:',
+        'submitted': ':postbox:',
+        'rejected': ':x:',
+        'hiatus': ':clock4:',
+        'rewriting': ':repeat:',
+        'accepted': ':ballot_box_with_check:'
+    }
 
-    def set_genre(self, genre):
+    @property
+    def status_emote(self) -> str:
+        """
+        Given the project's status, get the corresponding emote to display
+        @return: the emote key (including the delimiting `:`) or an empty string.
+        """
+        emote: Optional[str] = self.STATUS_EMOTES.get(self._status)
+        if emote is not None:
+            return emote
+        else:
+            return ''
+
+    @property
+    def genre(self) -> str:
+        return self._genre
+
+    @genre.setter
+    def genre(self, genre: str):
         """
         Set the project's genre.
         @param genre:
         @return:
         """
-        return self.__db.update('projects', {'genre': genre}, {'id': self._id})
+        self.__db.update('projects', {'genre': genre}, {'id': self._id})
 
-    def set_description(self, description):
+    # genre : emote
+    GENRE_EMOTES = {
+        'fantasy': ':man_mage:',
+        'scifi': ':ringed_planet:',
+        'romance': ':heart:',
+        'horror': ':skull:',
+        'fiction': ':blue_book:',
+        'nonfiction': ':bookmark:',
+        'short': ':shorts:',
+        'mystery': ':detective:',
+        'thriller': ':scream:',
+        'crime': ':oncoming_police_car:',
+        'erotic': ':hot_pepper:',
+        'comic': ':art:',
+        'action': ':gun:',
+        'drama': ':performing_arts:',
+        'fanfic': ':art:',
+        'sfw': ':green_circle:',
+        'nsfw': ':red_circle:',
+        'seminsfw': ':orange_circle:',
+        'literary': ':notebook_with_decorative_cover:',
+        'adventure': ':mountain_snow:',
+        'suspense': ':worried:',
+        'ya': ':adult:',
+        'kids': ':children_crossing:',
+        'academic': ':books:',
+        'challenge': ':mountain:',
+    }
+
+    @property
+    def genre_emote(self) -> str:
         """
-        Set the project's description.
-        @param description:
-        @return:
+        Given the project's genre, get the corresponding emote to display
+        @return: the emote key (including the delimiting `:`) or an empty string.
         """
-        return self.__db.update('projects', {'description': description}, {'id': self._id})
-
-    def get(user, shortname):
-        """
-        Try to get a project with a given shortname, for a given user
-        :param user:
-        :param shortname:
-        :return:
-        """
-        db = Database.instance()
-        record = db.get('projects', {'user': user, 'shortname': shortname})
-        return Project(record['id']) if record else None
-
-    def all(user, filter_by = None, filter = None):
-        """
-        Get an array of Projects for a given user, matching any optional filter passed through
-        @param filter_by:
-        @param filter:
-        @return:
-        """
-        db = Database.instance()
-
-        params = {'user': user}
-        if filter_by is not None and filter is not None:
-            params[filter_by] = filter
-
-        records = db.get_all('projects', params, ['id'], ['name', 'shortname', 'words'])
-        projects = []
-
-        for record in records:
-            projects.append(Project(record['id']))
-
-        return projects
-
-    def create(user, shortname, name):
-        """
-        Create a new project
-        :param name:
-        :return:
-        """
-        db = Database.instance()
-        return db.insert('projects', {'user': user, 'shortname': shortname, 'name': name})
-
-    async def display(self, context):
-
-        title = self.get_title()
-        description = self.get_description()
-        link = self.get_link()
-        words = str("{:,}".format(self.get_words()))
-
-        if link is not None:
-            embed = discord.Embed(title=title, color=discord.Color.green(), description=description, url=link)
+        emote: Optional[str] = self.GENRE_EMOTES.get(self._status)
+        if emote is not None:
+            return emote
         else:
-            embed = discord.Embed(title=title, color=discord.Color.green(), description=description)
+            return ''
 
-        if self.get_image() is not None:
-            embed.set_thumbnail(url=self.get_image())
+    @property
+    def image(self) -> Optional[str]:
+        """
+        The project's image URL
+        """
+        return self._image if self._image != '' else None
 
-        embed.add_field(name=lib.get_string('status', context.guild.id), value=self.get_status_emote() + ' ' + lib.get_string('project:status:'+self.get_status(), context.guild.id), inline=True)
+    @image.setter
+    def image(self, img: str):
+        """Set the project's image link."""
+        self.__db.update('projects', {'image': img}, {'id': self._id})
 
-        if self.get_genre() is not None:
-            embed.add_field(name=lib.get_string('genre', context.guild.id), value=self.get_genre_emote() + ' ' + lib.get_string('project:genre:'+self.get_genre(), context.guild.id), inline=True)
+    @property
+    def link(self) -> Optional[str]:
+        """The hyperlink for your project's web/store page"""
+        return self._link if self._link != '' else None
 
-        embed.add_field(name=lib.get_string('wordcount', context.guild.id), value=words, inline=True)
+    @link.setter
+    def link(self, link: str):
+        """Sets the hyperlink for your project's web/store page"""
+        self.__db.update('projects', {'link': link}, {'id': self._id})
 
-        return await context.send(embed=embed)
+    def delete(self):
+        """Delete the project"""
+        return self.__db.delete('projects', {'id': self._id})
+
+    def abbrev(self, context: InteractionContext) -> str:
+        return (
+            f'{self.status_emote} **{self.name}** ({self.shortname}) ['
+            + "{:,}".format(self.words) + ' ' + lib.get_string('words', context.guild_id).lower()
+            + ']' + self.genre_emote
+        )
+
+    def embed(self, context: InteractionContext) -> Embed:
+        """Create an embed displaying this project"""
+        words = str("{:,}".format(self.words))
+
+        embed: Embed
+        if self.link is not None:
+            embed = Embed(
+                title=self.name,
+                color=Color.green(),
+                description=self.description,
+                url=self.link
+            )
+        else:
+            embed = Embed(
+                title=self.name,
+                color=Color.green(),
+                description=self.description
+            )
+
+        if self.image is not None:
+            embed.set_thumbnail(url=self.image)
+
+        embed.add_field(
+            name=lib.get_string('status', context.guild_id),
+            value=(
+                self.status_emote + ' '
+                + lib.get_string(f'project:status:{self.status}', context.guild_id)
+            ),
+            inline=True
+        )
+
+        if self.genre is not None:
+            embed.add_field(
+                name=lib.get_string('genre', context.guild_id),
+                value=(
+                    self.genre_emote + ' '
+                    + lib.get_string(f'project:genre:{self.genre}', context.guild_id)
+                ),
+                inline=True
+            )
+
+        embed.add_field(
+            name=lib.get_string('wordcount', context.guild_id),
+            value=words,
+            inline=True
+        )
+
+        return embed
+
+    def is_complete(self) -> bool:
+        return self._completed > 0

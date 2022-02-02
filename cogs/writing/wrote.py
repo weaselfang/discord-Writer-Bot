@@ -54,23 +54,23 @@ class Wrote(commands.Cog):
         # If they were writing in a Project, update its word count.
         if shortname is not None:
 
-            project = user.get_project(shortname.lower())
+            project = Project.get(context.author_id, shortname.lower())
 
             # Make sure the project exists.
             if not project:
-                return await context.send(user.get_mention() + ', ' + lib.get_string('project:err:noexists', user.get_guild()).format(shortname))
+                return await context.send(context.author.mention + ', ' + lib.get_string('project:err:noexists', context.guild_id).format(shortname))
 
-            project.add_words(amount)
+            project.words += amount
 
             written_stat = user.get_stat('total_words_written')
             if written_stat is None:
                 written_stat = 0
             total = int(written_stat) + int(amount)
 
-            message = lib.get_string('wrote:addedtoproject', user.get_guild()).format(str(amount), project.get_title(), project.get_words(), total)
+            message = lib.get_string('wrote:addedtoproject', context.guild_id).format(amount, project.name, project.words, total)
 
         # # Is there an Event running?
-        event = Event.get_by_guild(user.get_guild())
+        event = Event.get_by_guild(context.guild_id)
         if event and event.is_running():
             event.add_words(user.get_id(), amount)
 
@@ -83,9 +83,9 @@ class Wrote(commands.Cog):
         # Output message
         if message is None:
             total = user.get_stat('total_words_written')
-            message = lib.get_string('wrote:added', user.get_guild()).format(str(amount), str(total))
+            message = lib.get_string('wrote:added', context.guild_id).format(str(amount), str(total))
 
-        await context.send(user.get_mention() + ', ' + message)
+        await context.send(context.author.mention + ', ' + message)
 
     @commands.command(name="wrote")
     @commands.guild_only()
@@ -98,7 +98,6 @@ class Wrote(commands.Cog):
             !wrote 200 sword - Adds 200 words to your Project with the shortname "sword". (See: Projects for more info).
         """
         await context.send(lib.get_string('err:slash', context.guild.id))
-
 
 def setup(bot):
     bot.add_cog(Wrote(bot))

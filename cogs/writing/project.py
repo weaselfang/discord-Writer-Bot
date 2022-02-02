@@ -1,391 +1,466 @@
-import discord, lib, math
-from discord.ext import commands
-from structures.user import User
-from structures.wrapper import CommandWrapper
-from validator_collection import checkers
-from structures.guild import Guild
+import math
+from typing import List, Optional
 
-class Project(commands.Cog, CommandWrapper):
+from discord.ext import commands
+from discord_slash.cog_ext import cog_subcommand
+from discord_slash.context import SlashContext, InteractionContext
+from discord_slash.model import SlashCommandOptionType
+from discord_slash.utils.manage_commands import create_option, create_choice
+from validator_collection import checkers
+
+import lib
+from structures.guild import Guild
+from structures.project import Project
+from structures.user import User
+
+
+class ProjectCommand(commands.Cog):
+    """
+    The project command allows you to create different projects and store word counts against them separately.
+    They also integrate with the `wrote` and `sprint` commands, allowing you to define words written against a chosen project.
+    (See the help information for those commands for more info).
+    """
 
     def __init__(self, bot):
+        super().__init__()
         self.bot = bot
-        self._supported_commands = ['create', 'delete', 'rename', 'update', 'view', 'list', 'status', 'genre', 'description', 'link', 'image', 'img']
-        self._statuses = ['planning', 'progress', 'editing', 'published', 'finished', 'abandoned']
-        self._genres = ['fantasy', 'scifi', 'romance', 'horror', 'fiction', 'nonfiction', 'short', 'mystery', 'thriller', 'crime', 'erotic', 'comic', 'action', 'drama', 'fanfic', 'sfw', 'nsfw', 'seminsfw', 'literary', 'adventure', 'suspense', 'ya', 'kids']
-        self._arguments = [
-            {
-                'key': 'cmd',
-                'prompt': 'project:argument:cmd',
-                'required': True,
-                'check': lambda content: content in self._supported_commands,
-                'error': 'project:err:argument:cmd'
-            }
+
+    @cog_subcommand(
+        base="project",
+        name="create",
+        description="Create a new project",
+        options=[
+            create_option(
+                name="shortname",
+                description="shortname of the project you want to configure",
+                required=True,
+                option_type=SlashCommandOptionType.STRING,
+            ),
+            create_option(
+                name="title",
+                description="title of the project you want to configure",
+                required=True,
+                option_type=SlashCommandOptionType.STRING,
+            )
         ]
-
-    @commands.command(name="project")
-    @commands.guild_only()
-    async def project(self, context, cmd=None, *opts):
-        """
-        The project command allows you to create different projects and store word counts against them separately. They also integrate with the `wrote` and `sprint` commands, allowing you to define words written against a chosen project. (See the help information for those commands for more info).
-
-        Examples:
-            `project create sword The Sword in the Stone` - Creates a new project with the shortname "sword" (used to reference the project when you want to update it), and the full title "The Sword in the Stone".
-            `project delete sword` - Deletes the project with the shortname "sword"
-            `project rename sword sword2 The Sword in the Stone Two` - Renames the project with the shortname "sword" to - shortname:sword2, title:The Sword in the Stone Two (If you want to keep the same shortname but change the title, just put the same shortname, e.g. `project rename sword sword The Sword in the Stone Two`.
-            `project update sword 65000` - Sets the word count for the project with the shortname "sword" to 65000.
-            `project list` - Views a list of all your projects.
-            `project list status published` - Views a list of all your projects with the `published` status.
-            `project list genre fantasy` - Views a list of all your projects with the `fantasy` genre.
-            `project view sword` - Views the information about the project with the shortname "sword".
-            `project status sword published` - Sets the status of the project to `published`.
-            `project genre sword fantasy` - Sets the genre of the project to `fantasy`.
-            `project description sword Young boy finds sword, becomes king` - Sets the description/blurb of the project.
-            `project link sword http://website.com/your-book` - Sets the hyperlink for your project's web/store page.
-            `project img sword http://website.com/picture.png` - Sets the thumbnail picture to use for this project.
-        """
+    )
+    async def project_create(self, context: SlashContext, shortname: str, title: str):
+        """Create a new project"""
         if not Guild(context.guild).is_command_enabled('project'):
             return await context.send(lib.get_string('err:disabled', context.guild.id))
 
-        user = User(context.message.author.id, context.guild.id, context)
+        # Make sure that the title is less than 100 chars
+        if len(title) > 100:
+            return await context.send(context.author.mention + ', '
+                                      + lib.get_string('project:err:length', context.guild_id))
 
-        # Check the arguments were all supplied and get a dict list of them and their values, after any prompts
-        args = await self.check_arguments(context, cmd=cmd)
-        if not args:
-            return
+        # Make sure they don't already have a project with this shortname
+        if Project.get(context.author_id, shortname) is not None:
+            return await context.send(context.author.mention + ', '
+                                      + lib.get_string('project:err:exists', context.guild_id)
+                                      .format(shortname))
 
-        # Overwrite the variables passed in, with the values from the prompt and convert to lowercase
-        cmd = args['cmd'].lower()
+        # Create the project
+        Project.create(context.author_id, shortname, title)
+        return await context.send(context.author.mention + ', '
+                                  + lib.get_string('project:created', context.guild_id)
+                                  .format(title, shortname))
 
-        # Make sure some options have been sent through
-        if len(opts) == 0 and cmd != 'view' and cmd != 'list':
-            return await context.send(user.get_mention() + ', ' + lib.get_string('project:err:options', user.get_guild()))
+    @cog_subcommand(
+        base="project",
+        name="list",
+        description="List user projects",
+        options=[
+            create_option(
+                name="status",
+                description="display only projects with this status",
+                option_type=SlashCommandOptionType.STRING,
+                required=False,
+                choices=[
+                    create_choice(status, status) for status in Project.STATUS_EMOTES.keys()
+                ]
+            ),
+            create_option(
+                name="genre",
+                description="set the genre of the project",
+                option_type=SlashCommandOptionType.STRING,
+                required=False,
+                choices=[
+                    create_choice(genre, genre) for genre in Project.GENRE_EMOTES.keys()
+                ]
+            )
+        ]
+    )
+    async def project_list(self, context: SlashContext, status: str = None, genre: str = None):
+        """View a list of the user's projects"""
+        if not Guild(context.guild).is_command_enabled('project'):
+            return await context.send(lib.get_string('err:disabled', context.guild.id))
 
-        # Check which command is being run and run it.
-        # Since the options can have spaces in them, we need to send the whole thing through as a list and then work out what is what in the command.
-        if cmd == 'create':
-            return await self.run_create(context, opts)
-        elif cmd == 'delete':
-            return await self.run_delete(context, opts)
-        elif cmd == 'rename':
-            return await self.run_rename(context, opts)
-        elif cmd == 'update':
-            return await self.run_update(context, opts)
-        elif cmd == 'view':
-            return await self.run_view(context, opts)
-        elif cmd == 'list':
-            return await self.run_list(context, opts)
-        elif cmd == 'status':
-            return await self.run_status(context, opts)
-        elif cmd == 'genre':
-            return await self.run_genre(context, opts)
-        elif cmd == 'description':
-            return await self.run_description(context, opts)
-        elif cmd == 'link':
-            return await self.run_link(context, opts)
-        elif cmd == 'image' or cmd == 'img':
-            return await self.run_image(context, opts)
+        await context.defer()
+        return await self._draw_projects(
+            context,
+            None if status is None else [status],
+            None if genre is None else [genre]
+        )
 
-    async def run_image(self, context, opts):
-        """
-        Update the image link of a project
-        @param context:
-        @param opts:
-        @return:
-        """
-        user = User(context.message.author.id, context.guild.id, context)
-        shortname = opts[0].lower() if opts else None
-        img = opts[1] if len(opts) > 1 else None
-
-        # Make sure the project exists.
-        project = user.get_project(shortname)
-        if not project:
-            return await context.send(user.get_mention() + ', ' + lib.get_string('project:err:noexists', user.get_guild()).format(shortname))
-
-        # Check it's a valid image link.
-        if not checkers.is_url(img) and img is not None:
-            return await context.send(user.get_mention() + ', ' + lib.get_string('project:err:link', user.get_guild()).format(img))
-
-        project.set_image(img)
-        return await context.send(user.get_mention() + ', ' + lib.get_string('project:image', user.get_guild()))
-
-    async def run_link(self, context, opts):
-        """
-        Update the hyperlink of a project
-        @param context:
-        @param opts:
-        @return:
-        """
-        user = User(context.message.author.id, context.guild.id, context)
-        shortname = opts[0].lower() if opts else None
-        link = opts[1] if len(opts) > 1 else None
-
-        # Make sure the project exists.
-        project = user.get_project(shortname)
-        if not project:
-            return await context.send(user.get_mention() + ', ' + lib.get_string('project:err:noexists', user.get_guild()).format(shortname))
-
-        # Check it's a valid link.
-        if not checkers.is_url(link) and link is not None:
-            return await context.send(user.get_mention() + ', ' + lib.get_string('project:err:link', user.get_guild()).format(link))
-
-        project.set_link(link)
-        return await context.send(user.get_mention() + ', ' + lib.get_string('project:link', user.get_guild()).format(link))
-
-    async def run_description(self, context, opts):
-        """
-        Update the description of a project
-        @param context:
-        @param opts:
-        @return:
-        """
-        user = User(context.message.author.id, context.guild.id, context)
-        shortname = opts[0].lower()
-        description = " ".join(opts[1:])
-
-        # Make sure the project exists.
-        project = user.get_project(shortname)
-        if not project:
-            return await context.send(user.get_mention() + ', ' + lib.get_string('project:err:noexists', user.get_guild()).format(shortname))
-
-        # Description cannot be longer than 200 words.
-        words = description.split(' ')
-        if len(words) > 200:
-            return await context.send(user.get_mention() + ', ' + lib.get_string('project:err:desc:length', user.get_guild()).format(len(words)))
-
-        project.set_description(description)
-        return await context.send(user.get_mention() + ', ' + lib.get_string('project:description', user.get_guild()))
-
-    async def run_genre(self, context, opts):
-        """
-        Update the genre of a project
-        @param context:
-        @param opts:
-        @return:
-        """
-        user = User(context.message.author.id, context.guild.id, context)
-        shortname = opts[0].lower() if opts else None
-        genre = opts[1].lower() if len(opts) > 1 else None
-
-        # Make sure the project exists.
-        project = user.get_project(shortname)
-        if not project:
-            return await context.send(user.get_mention() + ', ' + lib.get_string('project:err:noexists', user.get_guild()).format(shortname))
-
-        # Make sure the genre is valid.
-        if not genre in self._genres:
-            return await context.send(user.get_mention() + ', ' + lib.get_string('project:err:genre', user.get_guild()).format(genre, ', '.join(self._genres)))
-
-        project.set_genre(genre)
-        return await context.send(user.get_mention() + ', ' + lib.get_string('project:genre', user.get_guild()).format(lib.get_string('project:genre:'+genre, user.get_guild())))
-
-    async def run_status(self, context, opts):
-        """
-        Update the status of a project
-        @param context:
-        @param opts:
-        @return:
-        """
-        user = User(context.message.author.id, context.guild.id, context)
-        shortname = opts[0].lower() if opts else None
-        status = opts[1].lower() if len(opts) > 1 else None
-
-        # Make sure the project exists.
-        project = user.get_project(shortname)
-        if not project:
-            return await context.send(user.get_mention() + ', ' + lib.get_string('project:err:noexists', user.get_guild()).format(shortname))
-
-        # Make sure the status is valid.
-        if not status in self._statuses:
-            return await context.send(user.get_mention() + ', ' + lib.get_string('project:err:status', user.get_guild()).format(status, ', '.join(self._statuses)))
-
-        # If we are marking it finished or published for the first time, add xp.
-        if (status == 'finished' or status == 'published') and not project.is_complete():
-            xp = math.ceil(project.get_words() / 100)
-            if xp < 10:
-                xp = 10
-            elif xp > 5000:
-                xp = 5000
-            await user.add_xp(xp)
-            await context.send(user.get_mention() + ', ' + lib.get_string('project:completed', user.get_guild()).format(project.get_title(), xp))
-
-        project.set_status(status)
-        return await context.send(user.get_mention() + ', ' + lib.get_string('project:status', user.get_guild()).format(lib.get_string('project:status:'+status, user.get_guild())))
-
-    async def run_list(self, context, opts = None):
-        """
-        View a list of the user's projects
-        @param context:
-        @param opts:
-        @return:
-        """
-        user = User(context.message.author.id, context.guild.id, context)
-
-        by = opts[0].lower() if opts else None
-        filter = opts[1].lower() if len(opts) > 1 else None
-
-        # If supplied, make sure the filters are valid.
-        if by is not None and by not in ['status', 'genre']:
-            return await context.send(user.get_mention() + ', ' + lib.get_string('project:err:filter:type', user.get_guild()))
-
-        if by == 'status':
-            options = self._statuses
-        elif by == 'genre':
-            options = self._genres
-
-        if by is not None and filter not in options:
-            return await context.send(user.get_mention() + ', ' + lib.get_string('project:err:filter', user.get_guild()).format(', '.join(options)))
-
-        projects = user.get_projects(by, filter)
+    @classmethod
+    async def _draw_projects(cls, context: InteractionContext, status: Optional[List[str]] = None,
+                             genre: Optional[List[str]] = None):
+        projects = Project.all(user=context.author_id)
 
         # If they have no projects, then we can't display them.
-        if not projects:
-            return await context.send(user.get_mention() + ', ' + lib.get_string('project:noprojects', user.get_guild()))
+        if len(projects) < 1:
+            return await context.send(context.author.mention + ', '
+                                      + lib.get_string('project:noprojects', context.guild_id))
 
-        message = ''
+        filter_string: str = ""
 
-        for project in projects:
+        if status is not None:
+            projects = filter(lambda project: project.status in status, projects)
+            filter_string += ', '.join(
+                [lib.get_string(f'project:status:{s}', context.guild_id) for s in status]
+            )
 
-            message += '**' + project.get_name() + '** (' + project.get_shortname() + ') [' + str(
-                "{:,}".format(project.get_words())) + ' '+lib.get_string('words', user.get_guild()).lower()+']\n'
-            message += project.get_status_emote()
-            if project.get_genre() is not None:
-                message += '\t' + project.get_genre_emote()
-            message += '\n\n'
+        if genre is not None:
+            projects = filter(lambda project: project.genre in genre, projects)
+            genres_string = ', '.join(
+                [lib.get_string(f'project:genre:{g}', context.guild_id) for g in genre]
+            )
+            if len(filter_string) > 0 and len(genres_string) > 0:
+                filter_string += '; ' + genres_string
 
-        filter_string = lib.get_string('project:'+by+':'+filter, user.get_guild()) if filter is not None else lib.get_string('all', user.get_guild())
+        if not len(filter_string) > 0:
+            filter_string = lib.get_string('all', context.guild_id)
 
-        # Project lists can get very long. If it is over 2000 characters, we need to split it. Using 1750 to give us leeway on the user mention as well.
-        if len(message) >= 1750:
-            return await self.split_send(context, user, lib.get_string('project:list', user.get_guild()).format(filter_string) + message)
-        else:
-            return await context.send(user.get_mention() + ', ' + lib.get_string('project:list', user.get_guild()).format(filter_string) + message)
+        # add list header
+        message = context.author.mention + ', '
+        message += lib.get_string('project:list', context.guild_id).format(filter_string)
+        message += '\n\n'.join([project.abbrev(context) for project in projects])
 
-    async def run_view(self, context, opts):
-        """
-        View a specific project
-        :return:
-        """
-        user = User(context.message.author.id, context.guild.id, context)
+        buffer = ""
+        for line in message.splitlines(keepends=True):
+            if len(buffer) + len(line) > 2000:
+                await context.send(buffer)
+                # reset buffer after flushing
+                buffer = ""
 
-        # Make sure the project exists.
-        if not opts:
-            return await context.send(user.get_mention() + ', ' + lib.get_string('project:err:empty', user.get_guild()))
+            buffer += line
 
-        shortname = opts[0].lower()
-        project = user.get_project(shortname)
+        # send any remaining lines
+        if len(buffer) > 0:
+            await context.send(buffer)
+
+    @cog_subcommand(
+        base="project",
+        name="set",
+        description="Change info of a project. see also `/project update` and `/project rename`",
+        options=[
+            create_option(
+                name="shortname",
+                description="shortname of the project you want to configure",
+                required=True,
+                option_type=SlashCommandOptionType.STRING,
+            ),
+            create_option(
+                name="description",
+                description="Sets the description/blurb of the project",
+                option_type=SlashCommandOptionType.STRING,
+                required=False
+            ),
+            create_option(
+                name="genre",
+                description="set the genre of the project",
+                option_type=SlashCommandOptionType.STRING,
+                required=False,
+                choices=[
+                    create_choice(genre, genre) for genre in Project.GENRE_EMOTES.keys()
+                ]
+            ),
+            create_option(
+                name="status",
+                description="set the status of the project",
+                option_type=SlashCommandOptionType.STRING,
+                required=False,
+                choices=[
+                    create_choice(status, status) for status in Project.STATUS_EMOTES.keys()
+                ]
+            ),
+            create_option(
+                name="link",
+                description="Sets the hyperlink for your project's web/store page",
+                option_type=SlashCommandOptionType.STRING,
+                required=False
+            ),
+            create_option(
+                name="image",
+                description="Sets the thumbnail picture link to use for this project",
+                option_type=SlashCommandOptionType.STRING,
+                required=False
+            )
+        ]
+    )
+    async def project_set(self, context: SlashContext, shortname: str, description: str = None,
+                          genre: str = None, status: str = None, link: str = None,
+                          image: str = None):
+        await context.defer()
+        if not Guild(context.guild).is_command_enabled('project'):
+            return await context.send(lib.get_string('err:disabled', context.guild.id))
+
+        project: Project = Project.get(context.author_id, shortname)
         if not project:
-            return await context.send(user.get_mention() + ', ' + lib.get_string('project:err:noexists', user.get_guild()).format(shortname))
+            return await context.send(context.author.mention + ', '
+                                      + lib.get_string('project:err:noexists', context.guild_id)
+                                      .format(shortname))
+
+        message = context.author.mention + ', '
+        message += lib.get_string('project:set:header', context.guild_id).format(shortname)
+
+        delim = '\n\t'
+
+        if description is not None:
+            # Description cannot be longer than 200 words.
+            words = len(description.split(' '))
+            if words > 200:
+                return await context.send(
+                    context.author.mention + ', '
+                    + lib.get_string('project:err:desc:length', context.guild_id).format(words)
+                )
+            project.description = description
+            message += delim + lib.get_string('project:description', context.guild_id)
+        if genre is not None:
+            # Make sure the genre is valid.
+            if genre not in Project.GENRE_EMOTES.keys():
+                return await context.send(
+                    context.author.mention + ', '
+                    + lib.get_string('project:err:genre', context.guild_id)
+                    .format(genre, ', '.join(Project.GENRE_EMOTES.keys()))
+                )
+            project.genre = genre
+            message += delim + lib.get_string('project:genre', context.guild_id).format(
+                lib.get_string(f'project:genre:{genre}', context.guild_id)
+            )
+
+        if status is not None:
+            # Make sure the status is valid.
+            if status not in Project.STATUS_EMOTES.keys():
+                return await context.send(
+                    context.author.mention + ', ' +
+                    lib.get_string('project:err:status', context.guild_id)
+                    .format(status, ', '.join(Project.STATUS_EMOTES.keys())))
+
+            # If we are marking it finished or published for the first time, add xp.
+            if (status == 'finished' or status == 'published') and not project.is_complete():
+                xp = math.ceil(project.words / 100)
+                xp = max(10, min(xp, 5000))
+                await User(context.author_id, context.guild_id).add_xp(xp)
+                await context.send(
+                    context.author.mention + ', '
+                    + lib.get_string('project:completed', context.guild_id).format(project.name, xp)
+                )
+
+            project.status = status
+            message += delim + lib.get_string('project:status', context.guild_id).format(
+                lib.get_string(f'project:status:{status}', context.guild_id))
+        if link is not None:
+            # Check it's a valid link.
+            if not checkers.is_url(link):
+                return await context.send(
+                    context.author.mention + ', '
+                    + lib.get_string('project:err:link', context.guild_id)
+                    .format(link)
+                )
+
+            project.link = link
+            message += delim + lib.get_string('project:link', context.guild_id).format(link)
+        if image is not None:
+            # Check it's a valid link.
+            if not checkers.is_url(image):
+                return await context.send(
+                    context.author.mention + ', '
+                    + lib.get_string('project:err:link', context.guild_id).format(image)
+                )
+
+            project.image = image
+            message += delim + lib.get_string('project:image', context.guild_id).format(link)
+
+        if not message.endswith(':'):
+            return await context.reply(message)
+        else:
+            return await context.reply(
+                context.author.mention + ', '
+                + lib.get_string('project:err:nothingtoset', context.guild_id)
+            )
+
+    @cog_subcommand(
+        base="project",
+        name="view",
+        options=[
+                create_option(
+                    name="shortname",
+                    description="shortname of the project",
+                    option_type=SlashCommandOptionType.STRING,
+                    required=True
+                )
+            ]
+    )
+    async def project_view(self, context: SlashContext, shortname: str):
+        """View a specific project"""
+        await context.defer()
+
+        project = Project.get(context.author_id, shortname)
+        if not project:
+            return await context.send(
+                context.author.mention + ', '
+                + lib.get_string('project:err:noexists', context.guild_id).format(shortname)
+            )
 
         # Display the embedded message response for this project.
-        return await project.display(context)
+        return await context.reply(embed=project.embed(context))
 
-    async def run_update(self, context, opts):
-        """
-        Update a project's word count
-        :param context:
-        :param opts:
-        :return:
-        """
-        user = User(context.message.author.id, context.guild.id, context)
-
-        shortname = opts[0].lower()
-        amount = opts[1] if len(opts) > 1 else None
-
-        # Make sure the amount is valid.
-        amount = lib.is_number(amount)
-        if not amount:
-            return await context.send(user.get_mention() + ', ' + lib.get_string('project:err:amount', user.get_guild()))
-
-        # Make sure the project exists.
-        project = user.get_project(shortname)
-        if not project:
-            return await context.send(user.get_mention() + ', ' + lib.get_string('project:err:noexists', user.get_guild()).format(shortname))
-
-        # Update the word count.
-        project.update(amount)
-        return await context.send(user.get_mention() + ', ' + lib.get_string('project:updated', user.get_guild()).format(amount, project.get_name(), project.get_shortname()))
-
-    async def run_rename(self, context, opts):
-        """
-        Rename a project
-        :param context:
-        :param opts:
-        :return:
-        """
-        user = User(context.message.author.id, context.guild.id, context)
-
-        original_shortname = opts[0].lower()
-        new_shortname = opts[1].lower()
-        new_title = " ".join(opts[2:])
-
-        # Make sure the project exists
-        project = user.get_project(original_shortname)
-        if not project:
-            return await context.send(user.get_mention() + ', ' + lib.get_string('project:err:noexists', user.get_guild()).format(original_shortname))
-
-        # Make sure they don't already have one with that new shortname.
-        project_with_new_shortname = user.get_project(new_shortname)
-        if project_with_new_shortname is not None and project_with_new_shortname.get_id() != project.get_id():
-            return await context.send(user.get_mention() + ', ' + lib.get_string('project:err:exists', user.get_guild()).format(new_shortname))
-
-        # Get the original title.
-        original_title = project.get_name()
-
-        # Rename it.
-        project.rename(new_shortname, new_title)
-        return await context.send(user.get_mention() + ', ' + lib.get_string('project:renamed', user.get_guild()).format(original_title, original_shortname, new_title, new_shortname))
-
-
-    async def run_delete(self, context, opts):
-        """
-        Try to delete a project with the given shortname
-        :param context:
-        :param opts:
-        :return:
-        """
-        user = User(context.message.author.id, context.guild.id, context)
-
+    @cog_subcommand(
+        base="project",
+        name="delete",
+        description="Delete a project",
+        options=[
+            create_option(
+                name="shortname",
+                description="shortname of the project to delete",
+                option_type=SlashCommandOptionType.STRING,
+                required=True
+            )
+        ]
+    )
+    async def project_delete(self, context: SlashContext, shortname: str):
+        """Delete a project"""
+        await context.defer()
         # Make sure the project exists first
-        shortname = opts[0].lower()
-        project = user.get_project(shortname)
+        project = Project.get(context.author_id, shortname)
         if not project:
-            return await context.send(user.get_mention() + ', ' + lib.get_string('project:err:noexists', user.get_guild()).format(shortname))
+            return await context.send(
+                context.author.mention + ', '
+                + lib.get_string('project:err:noexists', context.guild_id).format(shortname)
+            )
 
         # Delete it.
         project.delete()
-        return await context.send(user.get_mention() + ', ' + lib.get_string('project:deleted', user.get_guild()).format(project.get_name(), project.get_shortname()))
+        return await context.send(
+            context.author.mention + ', '
+            + lib.get_string('project:deleted', context.guild_id)
+            .format(project.name, project.shortname)
+        )
 
-    async def run_create(self, context, opts):
-        """
-        Try to create a project with the given names
-        :param context:
-        :param shortname:
-        :param title:
-        :return:
-        """
-        user = User(context.message.author.id, context.guild.id, context)
+    @cog_subcommand(
+        base="project",
+        name="rename",
+        description="Change the title or shortname of a project. see also `/project set`",
+        options=[
+            create_option(
+                name="old_shortname",
+                description="The old/current shortname of the project you want to rename.",
+                option_type=SlashCommandOptionType.STRING,
+                required=True
+            ),
+            create_option(
+                name="new_shortname",
+                description="The new shortname for the project. Defaults to the old one.",
+                option_type=SlashCommandOptionType.STRING,
+                required=False
+            ),
+            create_option(
+                name="new_title",
+                description="The new title for the project. Defaults to the old one.",
+                option_type=SlashCommandOptionType.STRING,
+                required=False
+            )
+        ]
+    )
+    async def project_rename(self, context: SlashContext, old_shortname: str,
+                             new_shortname: str = None, new_title: str = None):
+        """Change the title or shortname of a project"""
+        await context.defer()
 
-        # Get the shortname and title out of the argument list.
-        shortname = opts[0].lower()
-        title = " ".join(opts[1:]) # Every argument after the first one, joined with spaces.
+        # Make sure the project exists
+        project = Project.get(context.author_id, old_shortname)
+        if not project:
+            return await context.send(
+                context.author.mention + ', '
+                + lib.get_string('project:err:noexists', context.guild_id).format(old_shortname)
+            )
 
-        # Make sure the shortname and title are set.
-        if len(shortname) == 0 or len(title) == 0:
-            return await context.send(user.get_mention() + ', ' + lib.get_string('project:err:names', user.get_guild()))
+        # Get the original title.
+        old_title = project.name
 
-        # Make sure that the title is less than 100 chars
-        if len(title) > 100:
-            return await context.send(user.get_mention() + ', ' + lib.get_string('project:err:length', user.get_guild()))
+        # if they gave the same shortname, they shouldn't have specified the argument.
+        if new_shortname == old_shortname:
+            new_shortname = None
+        if new_title == old_title:
+            new_title = None
 
-        # Make sure they don't already have a project with this shortname
-        project = user.get_project(shortname)
-        if project is not None:
-            return await context.send(user.get_mention() + ', ' + lib.get_string('project:err:exists', user.get_guild()).format(shortname))
+        if new_shortname is None and new_title is None:
+            return await context.reply(f'{context.author.mention}, nothing to set!')
 
-        # Create the project
-        user.create_project(shortname, title)
-        return await context.send(user.get_mention() + ', ' + lib.get_string('project:created', user.get_guild()).format(title, shortname))
+        # Make sure they don't already have one with that new shortname.
+        if new_shortname is not None and Project.get(context.author_id, new_shortname) is not None:
+            return await context.send(
+                context.author.mention + ', '
+                + lib.get_string('project:err:exists', context.guild_id).format(new_shortname)
+            )
+
+        if new_shortname is None:
+            new_shortname = old_shortname
+        if new_title is None:
+            new_title = old_title
+
+        # Rename it.
+        project.rename(new_shortname, new_title)
+        return await context.send(
+            context.author.mention + ', '
+            + lib.get_string('project:renamed', context.guild_id)
+            .format(old_title, old_shortname, new_title, new_shortname)
+        )
+
+    @cog_subcommand(
+        base="project",
+        name="update",
+        description="Update project word count",
+        options=[
+            create_option(
+                name="shortname",
+                description="shortname of the project to update",
+                option_type=SlashCommandOptionType.STRING,
+                required=True
+            ),
+            create_option(
+                name="wc",
+                description="new absolute project word count (see `/wrote` for incrementing)",
+                option_type=SlashCommandOptionType.INTEGER,
+                required=True
+            )
+        ]
+    )
+    async def project_update(self, context: SlashContext, shortname: str, wc: int):
+        """Update project word count"""
+        # Make sure the project exists.
+        project = Project.get(context.author_id, shortname)
+        if not project:
+            return await context.send(
+                context.author.mention + ', '
+                + lib.get_string('project:err:noexists', context.guild_id).format(shortname)
+            )
+
+        # Update the word count.
+        project.words = wc
+        return await context.send(
+            context.author.mention + ', '
+            + lib.get_string('project:updated', context.guild_id)
+            .format(wc, project.name, project.shortname)
+        )
+
+    @commands.command(name="project")
+    @commands.guild_only()
+    async def old(self, context):
+        return await context.send(lib.get_string('err:slash', context.guild.id))
 
 
 def setup(bot):
-    bot.add_cog(Project(bot))
+    bot.add_cog(ProjectCommand(bot))

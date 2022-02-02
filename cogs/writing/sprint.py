@@ -201,7 +201,7 @@ class SprintCommand(commands.Cog):
         if shortname is not None:
             await self._set_project(context, shortname)
 
-        user_projects = user.get_projects()
+        user_projects = Project.all(user.get_id())
 
         # if user has no projects, no point in sending the
         if len(user_projects) < 1:
@@ -209,10 +209,10 @@ class SprintCommand(commands.Cog):
 
         project_options = [
             create_select_option(
-                value=user_project.get_shortname(),
-                default=(user_project.get_shortname() == shortname),
-                label=user_project.get_name(),
-                description=user_project.get_description()
+                value=user_project.shortname,
+                default=(user_project.shortname == shortname),
+                label=user_project.name,
+                description=user_project.description
             ) for user_project in user_projects
         ]
         select = create_select(
@@ -730,7 +730,7 @@ class SprintCommand(commands.Cog):
             shortname = shortname.lower()
 
             # Make sure the project exists.
-            project = user.get_project(shortname)
+            project = Project.get(user.get_id(), shortname)
 
             # If that did not yield a valid project, send an error message.
             if project is None:
@@ -742,7 +742,7 @@ class SprintCommand(commands.Cog):
         sprint.set_project(project.get_id(), context.author_id)
         return await context.send(
             context.author.mention + ', ' +
-            lib.get_string('sprint:project', context.guild_id).format(project.get_title()))
+            lib.get_string('sprint:project', context.guild_id).format(project.name))
 
     @classmethod
     async def _common_init(cls, context: InteractionContext, hidden: bool = False) -> (User, Sprint, bool):

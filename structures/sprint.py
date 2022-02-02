@@ -435,7 +435,7 @@ class Sprint:
                     # If they were writing in a Project, update its word count.
                     if user_sprint['project'] is not None:
                         project = Project(user_sprint['project'])
-                        project.add_words(wordcount)
+                        project.words += wordcount
 
                     # is there an event running on this server?
                     event = Event.get_by_guild(self._guild)
