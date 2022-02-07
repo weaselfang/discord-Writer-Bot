@@ -9,6 +9,9 @@ from discord_slash import cog_ext, SlashContext
 from discord_slash.model import SlashCommandOptionType
 from discord_slash.utils.manage_commands import create_option, create_choice
 
+VISIBLE_TO_EVERYONE = 0
+HIDDEN_EPHEMERAL = 1
+
 SUPPORTED_TYPES = {
     'char': 'Character',
     'place': 'Place',
@@ -59,14 +62,18 @@ class Generate(commands.Cog, CommandWrapper):
             ),
             create_option(
                 name="hidden",
-                description="Should the response be in a hidden message?",
-                option_type=SlashCommandOptionType.BOOLEAN,
-                required=False
+                description="Should the response be in a hidden (ephemeral) message?",
+                option_type=SlashCommandOptionType.INTEGER,
+                required=False,
+                choices=[
+                    create_choice(VISIBLE_TO_EVERYONE, 'Visible to everyone'),
+                    create_choice(HIDDEN_EPHEMERAL, 'Visible only to you')
+                ]
             )
         ]
     )
     async def generate(self, context: SlashContext, type: str, amount: int = None,
-                       hidden: bool = False):
+                       hidden: int = VISIBLE_TO_EVERYONE):
         """
         Random generator for various things (character names, place names, land names, book titles, story ideas, prompts).
         Define the type of item you wanted generated and then optionally, the amount of items to generate.
@@ -78,7 +85,7 @@ class Generate(commands.Cog, CommandWrapper):
         :rtype void:
         """
         # Send "bot is thinking" message, to avoid failed commands if latency is high.
-        await context.defer(hidden=hidden)
+        await context.defer(hidden=hidden == HIDDEN_EPHEMERAL)
 
         # Make sure the guild has this command enabled.
         if not Guild(context.guild).is_command_enabled('generate'):
