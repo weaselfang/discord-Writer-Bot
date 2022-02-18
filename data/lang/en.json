@@ -115,18 +115,12 @@
 
     "challenge:alreadyactive": "You already have an active challenge. You will need to either complete or cancel it first.",
     "challenge:completed": "You have completed the challenge",
-    "challenge:noactive": "You do not have an active challenge. Perhaps you should start one? `challenge`",
-    "challenge:givenup": "wasn't able to finish their current challenge.",
+    "challenge:noactive": "You do not have an active challenge. Perhaps you should start one? `/challenge start`",
+    "challenge:givenup": "Challenge cancelled.",
     "challenge:current": "Your current challenge is",
-    "challenge:tocomplete": "`challenge done` to complete the challenge.\n`challenge cancel` to cancel the challenge.",
-    "challenge:plsrespond": "Please respond with either `yes` or `no` to your current challenge.",
+    "challenge:tocomplete": "`/challenge complete` to complete the challenge.\n`/challenge cancel` to cancel the challenge.",
     "challenge:challenge": "Write at least {words} words, in {mins} minutes ({wpm} wpm)",
-    "challenge:decide": "Will you accept this challenge? `yes` or `no`",
-    "challenge:accepted": "You have accepted the challenge: ",
-    "challenge:active": "Active Challenges",
-    "challenge:noactiveserver": "There are no active challenges on this server.",
-    "challenge:argument:flag": "Please specify a difficulty, time or wpm when generating a challenge. See `help challenge` for more info.",
-
+    "challenge:accepted": "Here is your challenge:",
 
     "goal": "Goal",
     "goals": "Goals",
