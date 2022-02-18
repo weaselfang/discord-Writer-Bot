@@ -3,12 +3,20 @@ import re
 import lib
 import discord
 from discord.ext import commands
+from discord_slash import cog_ext, SlashContext
+from discord_slash.model import SlashCommandOptionType
+from discord_slash.utils.manage_commands import create_option, create_choice
 from structures.db import Database
-from structures.user import User
-from structures.wrapper import CommandWrapper
 from structures.guild import Guild
+from structures.user import User
 
-class Challenge(commands.Cog, CommandWrapper):
+DIFFICULTY_EASY = 0
+DIFFICULTY_NORMAL = 1
+DIFFICULTY_HARD = 2
+DIFFICULTY_HARDCORE = 3
+DIFFICULTY_INSANE = 4
+
+class Challenge(commands.Cog):
 
     WPM={'min': 5, 'max': 30}
     TIMES={'min': 5, 'max': 60}
@@ -16,22 +24,43 @@ class Challenge(commands.Cog, CommandWrapper):
     def __init__(self, bot):
         self.bot = bot
         self.__db = Database.instance()
-        self._arguments = [
-            {
-                'key': 'flag',
-                'prompt': 'challenge:argument:flag',
-                'required': False,
-                'error': 'challenge:argument:flag'
-            },
-            {
-                'key': 'flag2',
-                'required': False
-            }
-        ]
 
     @commands.command(name="challenge")
     @commands.guild_only()
-    async def ask(self, context, flag=None, flag2=None):
+    async def old(self, context):
+        """
+        Migrated command, so just display a message for now.
+
+        :param context: Discord context
+        """
+        return await context.send(lib.get_string('err:slash', context.guild_id))
+
+    @cog_ext.cog_subcommand(
+        base="challenge",
+        name="start",
+        description="Generate a writing challenge to complete",
+        options=[
+            create_option(
+                name="difficulty",
+                description="How difficult should the challenge be?",
+                option_type=SlashCommandOptionType.INTEGER,
+                required=False,
+                choices=[
+                    create_choice(DIFFICULTY_EASY, 'Easy'),
+                    create_choice(DIFFICULTY_NORMAL, 'Normal'),
+                    create_choice(DIFFICULTY_HARD, 'Hard'),
+                    create_choice(DIFFICULTY_HARDCORE, 'Hardcore'),
+                    create_choice(DIFFICULTY_INSANE, 'Insane'),
+                ]
+            ),
+            create_option(
+                name="length",
+                description="How many minutes should the challenge be for? (minimum: 5, maximum: 60)",
+                option_type=SlashCommandOptionType.INTEGER,
+                required=False,
+            )
+        ])
+    async def start(self, context: SlashContext, difficulty: int = None, length: int = None):
         """
         Generates a random writing challenge for you. e.g. "Write 400 words in 15 minutes".
         You can add the flags "easy", "normal", "hard", "hardcore", or "insane" to choose a pre-set wpm,
@@ -40,61 +69,153 @@ class Challenge(commands.Cog, CommandWrapper):
 
         If you do not specify any flags with the command, the challenge will be completely random.
 
-        Examples:
-            !challenge - Generates an entirely random writing challenge,
-            !challenge easy - Generates a random writing challenge, at 5 wpm (20xp).
-            !challenge normal - Generates a random writing challenge, at 10 wpm (40xp).
-            !challenge hard - Generates a random writing challenge, at 20 wpm (75xp).
-            !challenge hardcore - Generates a random writing challenge, at 40 wpm (100xp).
-            !challenge insane - Generates a random writing challenge, at 60 wpm (150xp).
-            !challenge 10wpm - Generates a random writing challenge, at 10 wpm.
-            !challenge 15m - Generates a random writing challenge, with a duration of 15 minutes.
-            !challenge normal 18m - Generates a writing challenge, at normal difficulty, for 18 minutes.
-            !challenge cancel - Cancels your current challenge.
-            !challenge done|complete - Completes your current challenge.
+        :param SlashContext context: SlashContext object
+        :param int difficulty: Difficulty level
+        :param int length: Challenge length in mins
+        :rtype: void
         """
-        if not Guild(context.guild).is_command_enabled('challenge'):
-            return await context.send(lib.get_string('err:disabled', context.guild.id))
 
-        # Check the arguments are valid
-        args = await self.check_arguments(context, flag=flag, flag2=flag2)
-        if not args:
+        # Send "bot is thinking" message, to avoid failed commands if latency is high.
+        await context.defer()
+
+        # Make sure the guild has this command enabled.
+        if not Guild(context.guild).is_command_enabled('challenge'):
+            return await context.send(lib.get_string('err:disabled', context.guild_id))
+
+        # Run the start challenge.
+        await self.run_challenge(context, difficulty, length)
+
+    @cog_ext.cog_subcommand(
+        base="challenge",
+        name="cancel",
+        description="Cancel the current writing challenge",
+    )
+    async def cancel(self, context: SlashContext):
+        """
+        Cancel the current writing challenge
+
+        :param SlashContext context: SlashContext object
+        :rtype: void
+        """
+
+        # Send "bot is thinking" message, to avoid failed commands if latency is high.
+        await context.defer()
+
+        # Make sure the guild has this command enabled.
+        if not Guild(context.guild).is_command_enabled('challenge'):
+            return await context.send(lib.get_string('err:disabled', context.guild_id))
+
+        # Cancel the challenge.
+        await self.run_cancel(context)
+
+    @cog_ext.cog_subcommand(
+        base="challenge",
+        name="complete",
+        description="Mark the current writing challenge as completed",
+    )
+    async def complete(self, context: SlashContext):
+        """
+        Mark the current writing challenge as completed
+
+        :param SlashContext context: SlashContext object
+        :rtype: void
+        """
+
+        # Send "bot is thinking" message, to avoid failed commands if latency is high.
+        await context.defer()
+
+        # Make sure the guild has this command enabled.
+        if not Guild(context.guild).is_command_enabled('challenge'):
+            return await context.send(lib.get_string('err:disabled', context.guild_id))
+
+        # Complete the challenge.
+        await self.run_complete(context)
+
+    async def run_challenge(self, context: SlashContext, difficulty: int, length: int):
+        """
+        Start the challenge
+
+        :param SlashContext context: SlashContext object
+        :param int difficulty: Difficulty level
+        :param int length: Challenge length in mins
+        :rtype: void
+        """
+
+        user = User(context.author_id, context.guild_id, context)
+
+        challenge = user.get_challenge()
+
+        # If they already have a challenge running, display the info.
+        if challenge:
+            output = lib.get_string('challenge:accepted', user.get_guild()) + '\n**' + \
+                     challenge['challenge'] + '**\n' + \
+                     lib.get_string('challenge:tocomplete', user.get_guild())
+            await context.send(f'{context.author.mention}, {output}')
             return
 
-        if flag is not None:
-            flag = args['flag'].lower()
+        # First create a random WPM and time and then adjust if they are actually specified
+        wpm = random.randint(self.WPM['min'], self.WPM['max'])
+        time = random.randint(self.TIMES['min'], self.TIMES['max'])
 
-        if flag2 is not None:
-            flag2 = args['flag2'].lower()
+        # If they specified a difficulty, use that instead.
+        if difficulty is not None:
 
-        if flag == 'cancel':
-            await self.run_cancel(context)
-        elif flag == 'done' or flag == 'complete':
-            await self.run_complete(context)
-        else:
-            await self.run_challenge(context, flag, flag2)
+            # Convert the flag to the corresponding WPM
+            if difficulty == DIFFICULTY_EASY:
+                wpm = random.randint(3, 5)
+            elif difficulty == DIFFICULTY_NORMAL:
+                wpm = random.randint(10, 15)
+            elif difficulty == DIFFICULTY_HARD:
+                wpm = random.randint(20, 30)
+            elif difficulty == DIFFICULTY_HARDCORE:
+                wpm = random.randint(35, 45)
+            elif difficulty == DIFFICULTY_INSANE:
+                wpm = random.randint(50, 60)
+
+        # If they specified a valid length, use that instead.
+        if length is not None and length >= self.TIMES['min'] and length <= self.TIMES['max']:
+            time = length
+
+        # Calculate the word goal and xp it will grant.
+        goal = wpm * time
+        xp = self.calculate_xp(wpm)
+
+        # Set the challenge.
+        challenge = lib.get_string('challenge:challenge', user.get_guild()).format(words=goal, mins=time, wpm=wpm)
+        user.set_challenge(challenge, xp)
+
+        # Display a message confirming it.
+        output = lib.get_string('challenge:accepted', user.get_guild()) + '\n**' + challenge + '**\n' + lib.get_string('challenge:tocomplete', user.get_guild())
+
+        await context.send(context.author.mention + ', ' + output)
 
     def calculate_xp(self, wpm):
         """
         Calculate the XP to give for the challenge, based on the words per minute.
-        """
 
+        :param int wpm: Words per minute
+        :rtype: int
+        """
         if wpm <= 5:
             return 20
-        elif wpm <= 10:
+        elif wpm <= 15:
             return 40
-        elif wpm <= 20:
+        elif wpm <= 30:
             return 75
-        elif wpm <= 40:
+        elif wpm <= 45:
             return 100
-        elif wpm <= 60:
+        elif wpm > 45:
             return 150
-        elif wpm > 60:
-            return 200
 
-    async def run_complete(self, context):
+    async def run_complete(self, context: SlashContext):
+        """
+        Mark the current challenge as completed.
 
-        user = User(context.message.author.id, context.guild.id, context)
+        :param SlashContext context:
+        :rtype: void
+        """
+
+        user = User(context.author_id, context.guild_id, context)
 
         # Do they have an active challenge to mark as complete?
         challenge = user.get_challenge()
@@ -114,12 +235,17 @@ class Challenge(commands.Cog, CommandWrapper):
         else:
             output = lib.get_string('challenge:noactive', user.get_guild())
 
-        await context.send(f'{context.message.author.mention}, {output}')
+        await context.send(f'{context.author.mention}, {output}')
 
+    async def run_cancel(self, context: SlashContext):
+        """
+        Cancel the current challenge
 
-    async def run_cancel(self, context):
+        :param SlashContext context: SlashContext object
+        :rtype: void
+        """
 
-        user = User(context.message.author.id, context.guild.id, context)
+        user = User(context.author_id, context.guild_id, context)
         challenge = user.get_challenge()
 
         if challenge:
@@ -128,79 +254,9 @@ class Challenge(commands.Cog, CommandWrapper):
         else:
             output = lib.get_string('challenge:noactive', user.get_guild())
 
-        await context.send(f'{context.message.author.mention}, {output}')
-
-    async def run_challenge(self, context, flag, flag2=None):
-
-        user = User(context.message.author.id, context.guild.id, context)
-
-        challenge = user.get_challenge()
-        if challenge:
-            output = lib.get_string('challenge:current', user.get_guild()) + ': **' + \
-                     challenge['challenge'] + '**\n' + \
-                     lib.get_string('challenge:tocomplete', user.get_guild())
-            await context.send(f'{context.message.author.mention}, {output}')
-            return
+        await context.send(f'{context.author.mention}, {output}')
 
 
-        # First create a random WPM and time and then adjust if they are actually specified
-        wpm = random.randint(self.WPM['min'], self.WPM['max'])
-        time = random.randint(self.TIMES['min'], self.TIMES['max'])
-
-        if flag is not None:
-
-            # Convert the flag to the corresponding WPM
-            if flag == 'easy':
-                wpm = 5
-            elif flag == 'normal':
-                wpm = 10
-            elif flag == 'hard':
-                wpm = 20
-            elif flag == 'hardcore':
-                wpm = 40
-            elif flag == 'insane':
-                wpm = 60
-            elif flag.isdigit():
-                # If it's just a digit, assume that's the WPM
-                wpm = int(flag)
-            elif flag.endswith('wpm'):
-                # If it ends with 'wpm' remove that and convert to an int for the WPM
-                wpm = int(re.sub(r'\D', '', flag))
-            elif flag.endswith('m'):
-                # If it ends with 'm' remove that and convert to an int for the time
-                time = int(re.sub(r'\D', '', flag))
-
-            # We can ask for a difficulty AND a time, using flag2. E.g. `normal 15m`. So if flag2 ends with 'm' calculate the time based on that.
-            # If for some reason they do both flags as time, e.g. `challenge 15m 25m` the second one will overwrite the first.
-            if flag2 is not None and flag2.endswith('m'):
-                time = int(re.sub(r'\D', '', flag2))
-
-        goal = wpm * time
-        xp = self.calculate_xp(wpm)
-
-        challenge = lib.get_string('challenge:challenge', user.get_guild()).format(words=goal, mins=time, wpm=wpm)
-        message = challenge + '\n'
-        message += lib.get_string('challenge:decide', user.get_guild())
-
-        # Build a fake argument, as the argument is optional so isn't checked by the normal check_arguments method
-        argument = {'prompt': message, 'check': lambda resp : resp.lower() in ('y', 'yes', 'n', 'no')}
-
-        # Print the challenge and ask for confirmation response
-        response = await self.adhoc_prompt(context, argument, True)
-        if not response:
-            return
-
-        response = response.content
-
-        # If they accept it, set the challenge and print the message
-        if response.lower() in ('y', 'yes'):
-            user.set_challenge(challenge, xp)
-            output = lib.get_string('challenge:accepted', user.get_guild()) + ' **' + challenge + '**\n' + lib.get_string('challenge:tocomplete', user.get_guild())
-        else:
-            # Otherwise, just print 'OK'
-            output = 'OK'
-
-        await context.send(context.message.author.mention + ', ' + output)
 
 def setup(bot):
     bot.add_cog(Challenge(bot))
