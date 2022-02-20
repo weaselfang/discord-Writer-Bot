@@ -784,7 +784,11 @@ class SprintCommand(commands.Cog):
             max_wpm = cls.WPM_CHECK
 
         if wpm > int(max_wpm):
-            return await context.send(context.author.mention + ', ' + lib.get_string('sprint:wpm:redeclare', context.guild_id), hidden=True)
+            return await context.send(
+                context.author.mention + ', ' +
+                lib.get_string('sprint:wpm:redeclare', context.guild_id).format(written, wpm),
+                hidden=True
+            )
 
         # Update the user's sprint record
         arg = {col: amount}

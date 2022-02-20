@@ -461,7 +461,7 @@
     "sprint:end": "**Time is up**\nPens down. Use `sprint wc <amount>` to submit your final word counts, you have {} minute(s).\n",
     "sprint:project": "You are now sprinting in your project **{}**.",
     "sprint:stats": "Sprint Statistics",
-    "sprint:wpm:redeclare": "Did you really mean to submit {} words? That would be {} wpm. If you did, please increase the threshold of this limit by running `/mysetting maxwpm <wpm>` and redeclare your word count.",
+    "sprint:wpm:redeclare": "Did you really mean to submit {} words? That would be {} wpm. If you did, please increase this threshold by running `/mysetting maxwpm <wpm>` and redeclare your word count.",
     "sprint:declareagain": "Declaration cancelled. Please declare your word count again.",
     "sprint:purged": "Purged {} old users from sprint notifications",
     "sprint:purged:none": "No users to purge from sprint notifications",
