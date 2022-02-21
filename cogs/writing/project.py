@@ -49,6 +49,8 @@ class ProjectCommand(commands.Cog):
         if not Guild(context.guild).is_command_enabled('project'):
             return await context.send(lib.get_string('err:disabled', context.guild.id))
 
+        shortname = shortname.lower()
+
         # Make sure that the title is less than 100 chars
         if len(title) > 100:
             return await context.send(context.author.mention + ', '
@@ -410,6 +412,8 @@ class ProjectCommand(commands.Cog):
             new_shortname = old_shortname
         if new_title is None:
             new_title = old_title
+
+        new_shortname = new_shortname.lower()
 
         # Rename it.
         project.rename(new_shortname, new_title)
