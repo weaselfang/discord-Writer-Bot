@@ -307,6 +307,7 @@
     "project:updated": "Word count updated to **{}** words for: _{}_ ({})",
     "project:completed": "completed their project **{}**!\t+{}xp\t:sparkler:",
     "project:noprojects": "Could not find any projects. Why not create one?",
+    "project:nodesc": "No description",
     "project:status": "Project status set to: {}",
     "project:status:planning": "Research/Planning",
     "project:status:progress": "In Progress",

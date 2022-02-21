@@ -236,19 +236,23 @@ class Project:
         """Create an embed displaying this project"""
         words = str("{:,}".format(self.words))
 
+        desc = self.description
+        if desc is None:
+            desc = lib.get_string('project:nodesc', context.guild_id)
+
         embed: Embed
         if self.link is not None:
             embed = Embed(
                 title=self.name,
                 color=Color.green(),
-                description=self.description,
+                description=desc,
                 url=self.link
             )
         else:
             embed = Embed(
                 title=self.name,
                 color=Color.green(),
-                description=self.description
+                description=desc
             )
 
         if self.image is not None:
