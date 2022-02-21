@@ -123,7 +123,7 @@ class Project:
         'planning': ':thinking:',
         'progress': ':writing_hand:',
         'editing': ':pencil:',
-        'published': ':notebook_with_decorative_cover',
+        'published': ':notebook_with_decorative_cover:',
         'finished': ':white_check_mark:',
         'abandoned': ':wastebasket:',
         'submitted': ':postbox:',
