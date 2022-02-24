@@ -207,6 +207,11 @@ class SprintCommand(commands.Cog):
         if len(user_projects) < 1:
             return
 
+        # We cannot use the project list if they have more than 25 projects, as it breaks.
+        # This will need to change in the future so we filter these projects to only get 'active' ones, and ignore 'inactive' ones.
+        if len(user_projects) >= 25:
+            return
+
         project_options = [
             create_select_option(
                 value=user_project.shortname,
