@@ -378,7 +378,7 @@ class SprintCommand(commands.Cog):
 
         # If they do not have permission to cancel this sprint, display an error
         if int(sprint.get_createdby()) != context.author_id and context.author.permissions_in(
-                context.channel_id).manage_messages is not True:
+                context.channel).manage_messages is not True:
             return await context.send(
                 context.author.mention + ', ' + lib.get_string('sprint:err:cannotcancel', context.guild_id))
 
@@ -412,8 +412,8 @@ class SprintCommand(commands.Cog):
             return
 
         # If they do not have permission to cancel this sprint, display an error
-        if sprint.get_createdby() != context.author_id and context.channel.permissions_for(
-                context.author).manage_messages is not True:
+        if int(sprint.get_createdby()) != context.author_id and context.author.permissions_in(
+                context.channel).manage_messages is not True:
             return await context.send(
                 context.author.mention + ', ' + lib.get_string('sprint:err:cannotend', context.guild_id))
 
