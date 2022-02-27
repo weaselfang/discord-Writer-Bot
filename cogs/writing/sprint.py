@@ -198,18 +198,30 @@ class SprintCommand(commands.Cog):
             # Send message back to channel letting them know their starting word count was updated
             await context.send(context.author.mention + ', ' + lib.get_string('sprint:join', context.guild_id).format(initial))
 
+        # If they are sprinting in a project, send that message as well.
         if shortname is not None:
             await self._set_project(context, shortname)
 
     @cog_ext.cog_subcommand(
         base="sprint",
         name="join-no-wc",
-        description="Join a sprint without counting words"
+        description="Join a sprint without counting words",
+        options=[
+            create_option(
+                name="project",
+                option_type=SlashCommandOptionType.STRING,
+                required=False,
+                description="Project to sprint in"
+            )
+        ],
+        connector={'project': 'shortname'}
     )
-    async def sprint_join_no_wc(self, context: SlashContext):
+    async def sprint_join_no_wc(self, context: SlashContext, shortname: str = None):
         """
         Join a sprint without counting words
+
         :param SlashContext context: context this command was invoked in.
+        :param str shortname: Project shortname
         """
         user: User
         sprint: Sprint
@@ -223,8 +235,12 @@ class SprintCommand(commands.Cog):
         else:
             sprint.join(context.author_id, starting_wc=0, sprint_type=Sprint.SPRINT_TYPE_NO_WORDCOUNT)
 
-        return await context.send(
+        await context.send(
             context.author.mention + ', ' + lib.get_string('sprint:join:update:no_wordcount', context.guild_id))
+
+        # If they are sprinting in a project, send that message as well.
+        if shortname is not None:
+            await self._set_project(context, shortname)
 
     @cog_ext.cog_subcommand(
         base="sprint",
