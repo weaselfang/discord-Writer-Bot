@@ -201,38 +201,6 @@ class SprintCommand(commands.Cog):
         if shortname is not None:
             await self._set_project(context, shortname)
 
-        user_projects = Project.all(user.get_id())
-
-        # if user has no projects, no point in sending the
-        if len(user_projects) < 1:
-            return
-
-        # We cannot use the project list if they have more than 25 projects, as it breaks.
-        # This will need to change in the future so we filter these projects to only get 'active' ones, and ignore 'inactive' ones.
-        if len(user_projects) >= 25:
-            return
-
-        project_options = [
-            create_select_option(
-                value=user_project.shortname,
-                default=(user_project.shortname == shortname),
-                label=user_project.name,
-                description=user_project.description
-            ) for user_project in user_projects
-        ]
-        select = create_select(
-            options=project_options,
-            custom_id=PROJECT_SELECTOR_ID,
-            max_values=1,
-            min_values=0,
-            placeholder="Select a project"
-        )
-        return await context.send(
-            context.author.mention + ', ' + "To set or change the project you're sprinting in, select one:",
-            components=[create_actionrow(select)],
-            hidden=True
-        )
-
     @cog_ext.cog_subcommand(
         base="sprint",
         name="join-no-wc",
